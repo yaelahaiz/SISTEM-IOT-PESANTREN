@@ -132,8 +132,8 @@ if ($chartQuery) {
                         datasets: [{
                             label: 'pH Tanah',
                             data: phData,
-                            borderColor: '#059669',
-                            backgroundColor: 'rgba(5, 150, 105, 0.1)',
+                            borderColor: '#009678',
+                            backgroundColor: 'rgba(0, 150, 120, 0.1)',
                             fill: true,
                             tension: 0.3,
                             pointRadius: 3,

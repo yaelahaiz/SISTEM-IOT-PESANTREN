@@ -145,20 +145,20 @@ if ($chartQuery) {
                     {
                         label: 'Suhu (°C)',
                         data: temps,
-                        borderColor: '#d97706',
-                        backgroundColor: 'rgba(217, 119, 6, 0.1)',
+                        borderColor: '#ffb600',
+                        backgroundColor: 'rgba(255, 182, 0, 0.1)',
                         fill: true
                     },
                     {
                         label: 'Tegangan AC (V)',
                         data: volts,
-                        borderColor: '#2563eb',
+                        borderColor: '#009678',
                         backgroundColor: 'transparent'
                     },
                     {
                         label: 'Daya AC (W)',
                         data: power,
-                        borderColor: '#059669',
+                        borderColor: '#04a2b3',
                         backgroundColor: 'transparent'
                     }
                 ]);

@@ -161,14 +161,14 @@ if ($chartQuery) {
                     {
                         label: 'Suhu (°C)',
                         data: temps,
-                        borderColor: '#d97706',
+                        borderColor: '#ffb600',
                         backgroundColor: 'transparent',
                         yAxisID: 'y'
                     },
                     {
                         label: 'Tegangan (V)',
                         data: volts,
-                        borderColor: '#2563eb',
+                        borderColor: '#009678',
                         backgroundColor: 'transparent',
                         yAxisID: 'y1'
                     }

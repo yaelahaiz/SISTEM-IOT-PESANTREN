@@ -147,20 +147,20 @@ if ($chartQuery) {
                     {
                         label: 'Tinggi Cairan (cm)',
                         data: level,
-                        borderColor: '#2563eb',
-                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        borderColor: '#009678',
+                        backgroundColor: 'rgba(0, 150, 120, 0.1)',
                         fill: true
                     },
                     {
                         label: 'Tekanan Gas (kPa)',
                         data: pressure,
-                        borderColor: '#dc2626',
+                        borderColor: '#e66060',
                         backgroundColor: 'transparent'
                     },
                     {
                         label: 'Kelembaban Tanah (%)',
                         data: moisture,
-                        borderColor: '#059669',
+                        borderColor: '#04a2b3',
                         backgroundColor: 'transparent'
                     }
                 ]);

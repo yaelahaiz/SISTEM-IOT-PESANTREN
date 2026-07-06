@@ -250,18 +250,20 @@ function toggleRelay(relayId, newStatus) {
     });
 }
 
-// ===== Chart Helpers =====
+// ===== Chart Helpers (Appzia color palette) =====
 const chartColors = {
-    primary: 'rgba(37, 99, 235, 1)',
-    primaryBg: 'rgba(37, 99, 235, 0.1)',
-    secondary: 'rgba(5, 150, 105, 1)',
-    secondaryBg: 'rgba(5, 150, 105, 0.1)',
-    warning: 'rgba(217, 119, 6, 1)',
-    warningBg: 'rgba(217, 119, 6, 0.1)',
-    danger: 'rgba(220, 38, 38, 1)',
-    dangerBg: 'rgba(220, 38, 38, 0.1)',
-    info: 'rgba(8, 145, 178, 1)',
-    infoBg: 'rgba(8, 145, 178, 0.1)'
+    primary: 'rgba(0, 150, 120, 1)',
+    primaryBg: 'rgba(0, 150, 120, 0.1)',
+    secondary: 'rgba(4, 162, 179, 1)',
+    secondaryBg: 'rgba(4, 162, 179, 0.1)',
+    warning: 'rgba(255, 182, 0, 1)',
+    warningBg: 'rgba(255, 182, 0, 0.1)',
+    danger: 'rgba(230, 96, 96, 1)',
+    dangerBg: 'rgba(230, 96, 96, 0.1)',
+    info: 'rgba(0, 164, 254, 1)',
+    infoBg: 'rgba(0, 164, 254, 0.1)',
+    success: 'rgba(102, 210, 3, 1)',
+    successBg: 'rgba(102, 210, 3, 0.1)'
 };
 
 /**

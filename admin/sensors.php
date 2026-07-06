@@ -100,20 +100,20 @@ $sensorTypes = ['DHT22', 'PZEM-017', 'PZEM-016', 'HC-SR04', 'Soil Moisture', 'pH
     <div class="admin-wrapper">
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h2>IoT Pesantren</h2>
+                <h2>IoT<span>Pesantren</span></h2>
                 <p>Admin Panel</p>
             </div>
             <ul class="sidebar-nav">
                 <li><a href="dashboard.php"><span class="nav-icon">&#128202;</span> Dashboard</a></li>
-                <li class="sidebar-divider"></li>
+                <li class="sidebar-divider">PERANGKAT</li>
                 <li><a href="devices.php"><span class="nav-icon">&#128241;</span> Perangkat</a></li>
                 <li><a href="sensors.php" class="active"><span class="nav-icon">&#127777;&#65039;</span> Sensor</a></li>
                 <li><a href="monitoring.php"><span class="nav-icon">&#128200;</span> Monitoring</a></li>
                 <li><a href="relay_control.php"><span class="nav-icon">&#128268;</span> Kontrol Relay</a></li>
-                <li class="sidebar-divider"></li>
+                <li class="sidebar-divider">PENJUALAN</li>
                 <li><a href="sales.php"><span class="nav-icon">&#128176;</span> Penjualan</a></li>
                 <li><a href="sales_chart.php"><span class="nav-icon">&#128201;</span> Grafik Penjualan</a></li>
-                <li class="sidebar-divider"></li>
+                <li class="sidebar-divider">SISTEM</li>
                 <li><a href="settings.php"><span class="nav-icon">&#9881;&#65039;</span> Pengaturan</a></li>
                 <li><a href="../logout.php"><span class="nav-icon">&#128682;</span> Logout</a></li>
             </ul>

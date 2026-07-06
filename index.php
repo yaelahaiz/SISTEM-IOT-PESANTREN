@@ -31,7 +31,7 @@ $perm = getLatestPermacultureData($conn);
                 <li><a href="dashboard_rumah_pengering.php">Rumah Pengering</a></li>
                 <li><a href="dashboard_kandang_sapi.php">Kandang Sapi</a></li>
                 <li><a href="dashboard_permaculture.php">Permaculture</a></li>
-                <li><a href="login.php" style="background:var(--primary);color:white;border-radius:20px;padding:8px 20px;margin-left:10px;">Login Admin</a></li>
+                <li><a href="login.php" style="background:var(--primary);color:white;border-radius:var(--radius);padding:8px 20px;margin-left:8px;font-weight:500;">Login Admin</a></li>
             </ul>
         </div>
     </nav>
