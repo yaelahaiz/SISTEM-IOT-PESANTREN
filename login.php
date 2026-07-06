@@ -32,14 +32,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Admin - IoT Pesantren</title>
+    <title>Login Admin - Riyadul Muta'alimin</title>
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
     <div class="login-container">
         <div class="login-card">
             <div class="login-header">
-                <h1>IoT<span>Pesantren</span></h1>
+                <h1>Riyadul <span>Muta'alimin</span></h1>
                 <p>Login ke Panel Admin</p>
             </div>
             
@@ -70,3 +70,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </body>
 </html>
+

@@ -3,26 +3,47 @@ require_once 'config/database.php';
 require_once 'config/functions.php';
 
 $latest = getLatestDryerData($conn);
+
+// Get chart data (last 20 records)
+$chartQuery = $conn->query("SELECT temperature, voltage_ac, power_ac, DATE_FORMAT(recorded_at, '%H:%i') as time_label FROM dryer_monitoring ORDER BY id DESC LIMIT 20");
+$chartLabels = [];
+$chartTemps = [];
+$chartVolts = [];
+$chartPower = [];
+if ($chartQuery) {
+    while($row = $chartQuery->fetch_assoc()) {
+        array_unshift($chartLabels, $row['time_label']);
+        array_unshift($chartTemps, floatval($row['temperature']));
+        array_unshift($chartVolts, floatval($row['voltage_ac']));
+        array_unshift($chartPower, floatval($row['power_ac']));
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitoring Rumah Pengering - IoT Pesantren</title>
+    <title>Monitoring Rumah Pengering - Riyadul Muta'alimin</title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body data-refresh-type="dryer">
 
     <nav class="navbar">
         <div class="navbar-inner">
-            <a href="index.php" class="navbar-brand">IoT<span>Pesantren</span></a>
+            <a href="index.php" class="navbar-brand">
+                <div style="display:flex; flex-direction:column; align-items:flex-start; gap:2px;">
+                    <span>Riyadul <span>Muta'alimin</span></span>
+                    <small style="font-size:0.8rem; color:var(--text-light);">Powered By Bestari</small>
+                </div>
+            </a>
             <button class="navbar-toggle">☰</button>
             <ul class="navbar-nav">
                 <li><a href="index.php">Beranda</a></li>
                 <li><a href="dashboard_panel_surya.php">Panel Surya</a></li>
                 <li><a href="dashboard_rumah_pengering.php" class="active">Rumah Pengering</a></li>
-                <li><a href="dashboard_kandang_sapi.php">Kandang Sapi</a></li>
+                <li><a href="dashboard_kandang_sapi.php">Biodigester</a></li>
                 <li><a href="dashboard_permaculture.php">Permaculture</a></li>
             </ul>
         </div>
@@ -74,6 +95,13 @@ $latest = getLatestDryerData($conn);
             </div>
         </div>
 
+        <div class="chart-container">
+            <h3>Grafik Suhu, Tegangan AC & Daya (20 Data Terakhir)</h3>
+            <div class="chart-wrapper">
+                <canvas id="dryerChart"></canvas>
+            </div>
+        </div>
+
         <div class="table-responsive mt-3">
             <table class="data-table">
                 <thead>
@@ -110,5 +138,38 @@ $latest = getLatestDryerData($conn);
     </div>
 
     <script src="assets/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const labels = <?= json_encode($chartLabels) ?>;
+            const temps = <?= json_encode($chartTemps) ?>;
+            const volts = <?= json_encode($chartVolts) ?>;
+            const power = <?= json_encode($chartPower) ?>;
+            
+            if(labels.length > 0) {
+                createLineChart('dryerChart', labels, [
+                    {
+                        label: 'Suhu (°C)',
+                        data: temps,
+                        borderColor: '#ffb600',
+                        backgroundColor: 'rgba(255, 182, 0, 0.1)',
+                        fill: true
+                    },
+                    {
+                        label: 'Tegangan AC (V)',
+                        data: volts,
+                        borderColor: '#009678',
+                        backgroundColor: 'transparent'
+                    },
+                    {
+                        label: 'Daya AC (W)',
+                        data: power,
+                        borderColor: '#04a2b3',
+                        backgroundColor: 'transparent'
+                    }
+                ]);
+            }
+        });
+    </script>
 </body>
 </html>
+

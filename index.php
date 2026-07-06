@@ -13,7 +13,7 @@ $perm = getLatestPermacultureData($conn);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Monitoring IoT Pesantren</title>
+    <title>Sistem Monitoring Riyadul Muta'alimin</title>
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -22,16 +22,19 @@ $perm = getLatestPermacultureData($conn);
     <nav class="navbar">
         <div class="navbar-inner">
             <a href="index.php" class="navbar-brand">
-                IoT<span>Pesantren</span>
+                <div style="display:flex; flex-direction:column; align-items:flex-start; gap:2px;">
+                    <span>Riyadul <span>Muta'alimin</span></span>
+                    <small style="font-size:0.8rem; color:var(--text-light);">Powered By Bestari</small>
+                </div>
             </a>
             <button class="navbar-toggle">☰</button>
             <ul class="navbar-nav">
                 <li><a href="index.php" class="active">Beranda</a></li>
                 <li><a href="dashboard_panel_surya.php">Panel Surya</a></li>
                 <li><a href="dashboard_rumah_pengering.php">Rumah Pengering</a></li>
-                <li><a href="dashboard_kandang_sapi.php">Kandang Sapi</a></li>
+                <li><a href="dashboard_kandang_sapi.php">Biodigester</a></li>
                 <li><a href="dashboard_permaculture.php">Permaculture</a></li>
-                <li><a href="login.php" style="background:var(--primary);color:white;border-radius:20px;padding:8px 20px;margin-left:10px;">Login Admin</a></li>
+                <li><a href="login.php" style="background:var(--primary);color:white;border-radius:var(--radius);padding:8px 20px;margin-left:8px;font-weight:500;">Login Admin</a></li>
             </ul>
         </div>
     </nav>
@@ -40,7 +43,7 @@ $perm = getLatestPermacultureData($conn);
     <section class="hero-section">
         <div class="container">
             <h1>Sistem Monitoring IoT Terpadu</h1>
-            <p>Program Pengabdian Masyarakat - Monitoring Panel Surya, Rumah Pengering, Kandang Sapi & Biodigester, serta Permaculture secara real-time.</p>
+            <p>Program Pengabdian Masyarakat - Monitoring Panel Surya, Rumah Pengering, Biodigester, serta Permaculture secara real-time.</p>
             <a href="#dashboard" class="hero-btn">Lihat Dashboard</a>
         </div>
     </section>
@@ -103,9 +106,10 @@ $perm = getLatestPermacultureData($conn);
 
     <!-- Footer -->
     <footer class="footer">
-        <p>&copy; <?= date('Y') ?> Sistem Monitoring IoT Pesantren. Program Pengabdian Masyarakat.</p>
+        <p>&copy; <?= date('Y') ?> Sistem Monitoring Riyadul Muta'alimin. Program Pengabdian Masyarakat.</p>
     </footer>
 
     <script src="assets/js/main.js"></script>
 </body>
 </html>
+

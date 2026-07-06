@@ -4,26 +4,43 @@ require_once 'config/functions.php';
 
 $latest = getLatestPermacultureData($conn);
 $ph = $latest['soil_ph'] ?? 7.0;
+
+// Get chart data (last 20 records)
+$chartQuery = $conn->query("SELECT soil_ph, DATE_FORMAT(recorded_at, '%H:%i') as time_label FROM permaculture_monitoring ORDER BY id DESC LIMIT 20");
+$chartLabels = [];
+$chartPh = [];
+if ($chartQuery) {
+    while($row = $chartQuery->fetch_assoc()) {
+        array_unshift($chartLabels, $row['time_label']);
+        array_unshift($chartPh, floatval($row['soil_ph']));
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitoring Permaculture - IoT Pesantren</title>
+    <title>Monitoring Permaculture - Riyadul Muta'alimin</title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body data-refresh-type="permaculture">
 
     <nav class="navbar">
         <div class="navbar-inner">
-            <a href="index.php" class="navbar-brand">IoT<span>Pesantren</span></a>
+            <a href="index.php" class="navbar-brand">
+                <div style="display:flex; flex-direction:column; align-items:flex-start; gap:2px;">
+                    <span>Riyadul <span>Muta'alimin</span></span>
+                    <small style="font-size:0.8rem; color:var(--text-light);">Powered By Bestari</small>
+                </div>
+            </a>
             <button class="navbar-toggle">☰</button>
             <ul class="navbar-nav">
                 <li><a href="index.php">Beranda</a></li>
                 <li><a href="dashboard_panel_surya.php">Panel Surya</a></li>
                 <li><a href="dashboard_rumah_pengering.php">Rumah Pengering</a></li>
-                <li><a href="dashboard_kandang_sapi.php">Kandang Sapi</a></li>
+                <li><a href="dashboard_kandang_sapi.php">Biodigester</a></li>
                 <li><a href="dashboard_permaculture.php" class="active">Permaculture</a></li>
             </ul>
         </div>
@@ -55,6 +72,13 @@ $ph = $latest['soil_ph'] ?? 7.0;
                 <div class="card-footer last-updated" style="justify-content: center; margin-top: 20px;">
                     Diperbarui: <?= $latest ? date('d/m/Y H:i:s', strtotime($latest['recorded_at'])) : '-' ?>
                 </div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h3>Grafik pH Tanah (20 Data Terakhir)</h3>
+            <div class="chart-wrapper">
+                <canvas id="phChart"></canvas>
             </div>
         </div>
 
@@ -99,5 +123,56 @@ $ph = $latest['soil_ph'] ?? 7.0;
     </div>
 
     <script src="assets/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const labels = <?= json_encode($chartLabels) ?>;
+            const phData = <?= json_encode($chartPh) ?>;
+            
+            if(labels.length > 0) {
+                const ctx = document.getElementById('phChart');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'pH Tanah',
+                            data: phData,
+                            borderColor: '#009678',
+                            backgroundColor: 'rgba(0, 150, 120, 0.1)',
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 3,
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'top' },
+                            annotation: {}
+                        },
+                        scales: {
+                            y: {
+                                min: 0,
+                                max: 14,
+                                grid: { color: 'rgba(0,0,0,0.05)' },
+                                ticks: {
+                                    callback: function(value) {
+                                        if (value === 0) return '0 (Asam)';
+                                        if (value === 7) return '7 (Netral)';
+                                        if (value === 14) return '14 (Basa)';
+                                        return value;
+                                    }
+                                }
+                            },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
+

@@ -3,7 +3,7 @@
  * Authentication Helper
  * Fungsi untuk mengelola sesi login admin
  * 
- * @package IoT Pesantren
+ * @package Riyadul Muta'alimin
  */
 
 // Mulai session jika belum dimulai
@@ -26,7 +26,7 @@ function isLoggedIn() {
 function requireLogin() {
     if (!isLoggedIn()) {
         // Tentukan path relatif ke login.php
-        $loginPath = '/SISTEM IOT PESANTREN/login.php';
+        $loginPath = '/SISTEM-IOT-PESANTREN/login.php';
         header("Location: $loginPath");
         exit();
     }
@@ -120,3 +120,4 @@ function generateCSRFToken() {
 function validateCSRFToken($token) {
     return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
 }
+

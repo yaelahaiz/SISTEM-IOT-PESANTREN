@@ -22,7 +22,7 @@ if ($chartQuery) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitoring Panel Surya - IoT Pesantren</title>
+    <title>Monitoring Panel Surya - Riyadul Muta'alimin</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -30,13 +30,18 @@ if ($chartQuery) {
 
     <nav class="navbar">
         <div class="navbar-inner">
-            <a href="index.php" class="navbar-brand">IoT<span>Pesantren</span></a>
+            <a href="index.php" class="navbar-brand">
+                <div style="display:flex; flex-direction:column; align-items:flex-start; gap:2px;">
+                    <span>Riyadul <span>Muta'alimin</span></span>
+                    <small style="font-size:0.8rem; color:var(--text-light);">Powered By Bestari</small>
+                </div>
+            </a>
             <button class="navbar-toggle">☰</button>
             <ul class="navbar-nav">
                 <li><a href="index.php">Beranda</a></li>
                 <li><a href="dashboard_panel_surya.php" class="active">Panel Surya</a></li>
                 <li><a href="dashboard_rumah_pengering.php">Rumah Pengering</a></li>
-                <li><a href="dashboard_kandang_sapi.php">Kandang Sapi</a></li>
+                <li><a href="dashboard_kandang_sapi.php">Biodigester</a></li>
                 <li><a href="dashboard_permaculture.php">Permaculture</a></li>
             </ul>
         </div>
@@ -146,7 +151,7 @@ if ($chartQuery) {
     </div>
 
     <footer class="footer">
-        <p>&copy; <?= date('Y') ?> Sistem Monitoring IoT Pesantren.</p>
+        <p>&copy; <?= date('Y') ?> Sistem Monitoring Riyadul Muta'alimin.</p>
     </footer>
 
     <script src="assets/js/main.js"></script>
@@ -161,14 +166,14 @@ if ($chartQuery) {
                     {
                         label: 'Suhu (°C)',
                         data: temps,
-                        borderColor: '#d97706',
+                        borderColor: '#ffb600',
                         backgroundColor: 'transparent',
                         yAxisID: 'y'
                     },
                     {
                         label: 'Tegangan (V)',
                         data: volts,
-                        borderColor: '#2563eb',
+                        borderColor: '#009678',
                         backgroundColor: 'transparent',
                         yAxisID: 'y1'
                     }
@@ -178,3 +183,4 @@ if ($chartQuery) {
     </script>
 </body>
 </html>
+

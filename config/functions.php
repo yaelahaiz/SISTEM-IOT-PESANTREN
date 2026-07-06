@@ -1,9 +1,9 @@
 <?php
 /**
  * Helper Functions
- * Fungsi-fungsi pembantu untuk sistem IoT Pesantren
+ * Fungsi-fungsi pembantu untuk sistem Riyadul Muta'alimin
  * 
- * @package IoT Pesantren
+ * @package Riyadul Muta'alimin
  */
 
 /**
@@ -231,7 +231,7 @@ function exportToCSV($data, $filename) {
 function getBaseUrl() {
     $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
     $host = $_SERVER['HTTP_HOST'];
-    return $protocol . '://' . $host . '/SISTEM IOT PESANTREN';
+    return $protocol . '://' . $host . '/SISTEM-IOT-PESANTREN';
 }
 
 /**
@@ -247,3 +247,4 @@ function mapValue($value, $fromLow, $fromHigh, $toLow, $toHigh) {
     $mapped = ($value - $fromLow) * ($toHigh - $toLow) / ($fromHigh - $fromLow) + $toLow;
     return max($toLow, min($toHigh, $mapped));
 }
+

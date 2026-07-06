@@ -5,33 +5,54 @@ require_once 'config/functions.php';
 $latest = getLatestCattleData($conn);
 $height = getSetting($conn, 'biodigester_height') ?: 150;
 $diameter = getSetting($conn, 'biodigester_diameter') ?: 100;
+
+// Get chart data (last 20 records)
+$chartQuery = $conn->query("SELECT liquid_level, gas_pressure, soil_moisture_percent, DATE_FORMAT(recorded_at, '%H:%i') as time_label FROM cattle_monitoring ORDER BY id DESC LIMIT 20");
+$chartLabels = [];
+$chartLevel = [];
+$chartPressure = [];
+$chartMoisture = [];
+if ($chartQuery) {
+    while($row = $chartQuery->fetch_assoc()) {
+        array_unshift($chartLabels, $row['time_label']);
+        array_unshift($chartLevel, floatval($row['liquid_level']));
+        array_unshift($chartPressure, floatval($row['gas_pressure']));
+        array_unshift($chartMoisture, floatval($row['soil_moisture_percent']));
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitoring Kandang Sapi - IoT Pesantren</title>
+    <title>Monitoring Biodigester - Riyadul Muta'alimin</title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body data-refresh-type="cattle">
 
     <nav class="navbar">
         <div class="navbar-inner">
-            <a href="index.php" class="navbar-brand">IoT<span>Pesantren</span></a>
+            <a href="index.php" class="navbar-brand">
+                <div style="display:flex; flex-direction:column; align-items:flex-start; gap:2px;">
+                    <span>Riyadul <span>Muta'alimin</span></span>
+                    <small style="font-size:0.8rem; color:var(--text-light);">Powered By Bestari</small>
+                </div>
+            </a>
             <button class="navbar-toggle">☰</button>
             <ul class="navbar-nav">
                 <li><a href="index.php">Beranda</a></li>
                 <li><a href="dashboard_panel_surya.php">Panel Surya</a></li>
                 <li><a href="dashboard_rumah_pengering.php">Rumah Pengering</a></li>
-                <li><a href="dashboard_kandang_sapi.php" class="active">Kandang Sapi</a></li>
+                <li><a href="dashboard_kandang_sapi.php" class="active">Biodigester</a></li>
                 <li><a href="dashboard_permaculture.php">Permaculture</a></li>
             </ul>
         </div>
     </nav>
 
     <div class="container" style="margin-top:30px; margin-bottom: 50px;">
-        <h2 class="section-title">Monitoring Kandang Sapi & Biodigester</h2>
+        <h2 class="section-title">Monitoring Biodigester</h2>
         
         <h3 class="mt-3 mb-2">Data Biodigester</h3>
         <div class="dashboard-grid">
@@ -60,7 +81,7 @@ $diameter = getSetting($conn, 'biodigester_diameter') ?: 100;
             </div>
         </div>
 
-        <h3 class="mt-3 mb-2">Data Kelembaban Tanah (Kandang)</h3>
+        <h3 class="mt-3 mb-2">Data Kelembaban Tanah (Bunga Matahari)</h3>
         <div class="dashboard-grid">
             <div class="card" id="cattle-moisture">
                 <div class="card-header cattle">
@@ -75,6 +96,13 @@ $diameter = getSetting($conn, 'biodigester_diameter') ?: 100;
                     <span class="card-label">Nilai Mentah (ADC)</span>
                 </div>
                 <div class="card-value"><?= formatNumber($latest['soil_moisture_raw'] ?? 0, 0) ?></div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h3>Grafik Biodigester & Kelembaban Tanah (20 Data Terakhir)</h3>
+            <div class="chart-wrapper">
+                <canvas id="cattleChart"></canvas>
             </div>
         </div>
 
@@ -112,5 +140,38 @@ $diameter = getSetting($conn, 'biodigester_diameter') ?: 100;
     </div>
 
     <script src="assets/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const labels = <?= json_encode($chartLabels) ?>;
+            const level = <?= json_encode($chartLevel) ?>;
+            const pressure = <?= json_encode($chartPressure) ?>;
+            const moisture = <?= json_encode($chartMoisture) ?>;
+            
+            if(labels.length > 0) {
+                createLineChart('cattleChart', labels, [
+                    {
+                        label: 'Tinggi Cairan (cm)',
+                        data: level,
+                        borderColor: '#009678',
+                        backgroundColor: 'rgba(0, 150, 120, 0.1)',
+                        fill: true
+                    },
+                    {
+                        label: 'Tekanan Gas (kPa)',
+                        data: pressure,
+                        borderColor: '#e66060',
+                        backgroundColor: 'transparent'
+                    },
+                    {
+                        label: 'Kelembaban Tanah (%)',
+                        data: moisture,
+                        borderColor: '#04a2b3',
+                        backgroundColor: 'transparent'
+                    }
+                ]);
+            }
+        });
+    </script>
 </body>
 </html>
+

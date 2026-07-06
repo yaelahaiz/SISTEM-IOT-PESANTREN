@@ -4,7 +4,21 @@
  */
 
 // ===== Base URL =====
-const BASE_URL = window.location.origin + '/SISTEM IOT PESANTREN';
+const BASE_URL = window.location.origin + '/SISTEM-IOT-PESANTREN';
+
+// ===== Chart Colors =====
+const chartColors = {
+    primary: 'rgba(0, 150, 120, 1)',
+    primaryBg: 'rgba(0, 150, 120, 0.12)',
+    secondary: 'rgba(52, 97, 175, 1)',
+    secondaryBg: 'rgba(52, 97, 175, 0.12)',
+    danger: 'rgba(230, 96, 96, 1)',
+    dangerBg: 'rgba(230, 96, 96, 0.12)',
+    warning: 'rgba(255, 182, 0, 1)',
+    warningBg: 'rgba(255, 182, 0, 0.12)',
+    info: 'rgba(0, 164, 254, 1)',
+    infoBg: 'rgba(0, 164, 254, 0.12)'
+};
 
 // ===== Auto Refresh =====
 let refreshInterval = null;
@@ -42,7 +56,7 @@ function updateDashboard(type) {
  */
 function updateCards(type, data) {
     if (!data) return;
-    
+
     if (type === 'solar' && data.solar) {
         const d = data.solar;
         updateCardValue('solar-temp', d.temperature, '°C');
@@ -52,7 +66,7 @@ function updateCards(type, data) {
         updateCardValue('solar-power', d.power, 'W');
         updateCardValue('solar-energy', d.energy, 'Wh');
     }
-    
+
     if (type === 'dryer' && data.dryer) {
         const d = data.dryer;
         updateCardValue('dryer-temp', d.temperature, '°C');
@@ -64,7 +78,7 @@ function updateCards(type, data) {
         updateCardValue('dryer-freq', d.frequency, 'Hz');
         updateCardValue('dryer-pf', d.power_factor, '');
     }
-    
+
     if (type === 'cattle' && data.cattle) {
         const d = data.cattle;
         updateCardValue('cattle-level', d.liquid_level, 'cm');
@@ -73,7 +87,7 @@ function updateCards(type, data) {
         updateCardValue('cattle-moisture-raw', d.soil_moisture_raw, '');
         updateCardValue('cattle-moisture', d.soil_moisture_percent, '%');
     }
-    
+
     if (type === 'permaculture' && data.permaculture) {
         const d = data.permaculture;
         updateCardValue('perm-ph', d.soil_ph, 'pH');
@@ -87,7 +101,7 @@ function updateCards(type, data) {
 function updateCardValue(elementId, value, unit) {
     const el = document.getElementById(elementId);
     if (!el) return;
-    
+
     const valEl = el.querySelector('.card-value') || el;
     if (value !== null && value !== undefined) {
         valEl.textContent = formatNumber(parseFloat(value)) + (unit ? ' ' + unit : '');
@@ -97,12 +111,297 @@ function updateCardValue(elementId, value, unit) {
 }
 
 /**
+ * Tambahkan helper chart untuk Sales Chart
+ */
+function createBarChart(canvasId, labels, data, label) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return null;
+
+    return new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: label,
+                data: data,
+                backgroundColor: chartColors.primaryBg,
+                borderColor: chartColors.primary,
+                borderWidth: 2,
+                hoverBackgroundColor: chartColors.primary,
+                hoverBorderColor: chartColors.primary
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: { grid: { display: false } },
+                y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 }
+                }
+            }
+        }
+    });
+}
+
+function createLineChart(canvasId, labels, datasets, label) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return null;
+
+    return new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: datasets.map(ds => ({
+                ...ds,
+                tension: 0.35,
+                borderWidth: ds.borderWidth || 3,
+                pointRadius: ds.pointRadius || 4,
+                pointHoverRadius: ds.pointHoverRadius || 6,
+                pointBackgroundColor: ds.pointBackgroundColor || ds.borderColor,
+                pointBorderColor: ds.pointBorderColor || ds.borderColor,
+                backgroundColor: ds.backgroundColor || ds.borderColor,
+                borderColor: ds.borderColor,
+                fill: ds.fill === true
+            }))
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' }
+            },
+            scales: {
+                x: { grid: { display: false } },
+                y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 }
+                }
+            }
+        }
+    });
+}
+
+function createDoughnutChart(canvasId, labels, data, label) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return null;
+
+    return new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: label,
+                data: data,
+                backgroundColor: [
+                    chartColors.primary,
+                    chartColors.secondary,
+                    chartColors.danger,
+                    chartColors.warning,
+                    chartColors.info
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+}
+
+function loadSalesChart(period, month = '') {
+    const buttons = document.querySelectorAll('.period-btn');
+    buttons.forEach(btn => {
+        const text = btn.textContent.toLowerCase();
+        const isActive = text.includes(period === '7days' ? '7 hari' : period === '1month' ? '1 bulan' : '1 tahun');
+        btn.classList.toggle('active', isActive);
+        btn.classList.toggle('btn-primary', isActive);
+        btn.classList.toggle('btn-outline', !isActive);
+    });
+
+    const monthFilter = document.getElementById('salesMonthFilter');
+    const monthSelect = document.getElementById('salesMonth');
+    if (period === '1month') {
+        monthFilter.style.display = 'flex';
+        if (!month) {
+            month = monthSelect.value || (new Date().getMonth() + 1);
+        }
+    } else {
+        monthFilter.style.display = 'none';
+    }
+
+    fetch(`sales_chart.php?ajax=1&period=${period}&month=${month}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                if (window.profitChart) {
+                    window.profitChart.destroy();
+                }
+                window.profitChart = createBarChart('profitChart', data.labels, data.profits, 'Keuntungan');
+
+                if (window.trendChart) {
+                    window.trendChart.destroy();
+                }
+                window.trendChart = createLineChart('trendChart', data.labels, [
+                    {
+                        label: 'Modal',
+                        data: data.capitals,
+                        borderColor: chartColors.danger,
+                        backgroundColor: chartColors.dangerBg,
+                        fill: true
+                    },
+                    {
+                        label: 'Pendapatan',
+                        data: data.revenues,
+                        borderColor: chartColors.secondary,
+                        backgroundColor: chartColors.secondaryBg,
+                        fill: true
+                    },
+                    {
+                        label: 'Keuntungan',
+                        data: data.profits,
+                        borderColor: chartColors.primary,
+                        backgroundColor: 'rgba(0, 150, 120, 0.08)',
+                        pointBackgroundColor: chartColors.primary,
+                        pointBorderColor: chartColors.primary,
+                        fill: false
+                    }
+                ]);
+
+                if (window.productChart) {
+                    window.productChart.data.labels = data.products;
+                    window.productChart.data.datasets[0].data = data.product_totals;
+                    window.productChart.update();
+                }
+            }
+        })
+        .catch(err => console.error('Chart load error:', err));
+}
+
+function exportTableCSV(tableId, filename) {
+    const table = document.getElementById(tableId);
+    if (!table) return;
+
+    const rows = Array.from(table.querySelectorAll('tr'));
+    const csvContent = rows.map(row => {
+        const cells = Array.from(row.querySelectorAll('th, td'));
+        return cells.map(cell => `"${cell.textContent.replace(/"/g, '""')}"`).join(',');
+    }).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}
+
+function toggleRelay(id, status) {
+    const formData = new FormData();
+    formData.append('relay_id', id);
+    formData.append('status', status);
+
+    fetch('../api/update_relay_status.php', {
+        method: 'POST',
+        body: formData,
+        credentials: 'same-origin'
+    })
+        .then(res => res.json())
+        .then(response => {
+            if (response.status === 'success') {
+                showToast(response.message, 'success');
+                setTimeout(() => window.location.reload(), 800);
+            } else {
+                showToast(response.message || 'Gagal mengubah relay', 'error');
+            }
+        })
+        .catch(err => {
+            console.error('Relay toggle error:', err);
+            showToast('Terjadi kesalahan jaringan', 'error');
+        });
+}
+
+/**
  * Update status indicator
  */
 function updateStatusIndicator(elementId, status) {
     const el = document.getElementById(elementId);
     if (!el) return;
     el.className = 'status-indicator status-' + status;
+}
+
+/**
+ * Buka modal berdasarkan id
+ */
+function openModal(id) {
+    const modal = document.getElementById(id);
+    if (!modal) return;
+    modal.classList.add('active');
+}
+
+/**
+ * Tutup modal berdasarkan id
+ */
+function closeModal(id) {
+    const modal = document.getElementById(id);
+    if (!modal) return;
+    modal.classList.remove('active');
+}
+
+/**
+ * Toggle navbar mobile
+ */
+function toggleNavbar() {
+    const nav = document.querySelector('.navbar-nav');
+    if (!nav) return;
+    nav.classList.toggle('show');
+}
+
+/**
+ * Cari di tabel berdasarkan input
+ */
+function searchTable(inputId, tableId) {
+    const input = document.getElementById(inputId);
+    const table = document.getElementById(tableId);
+    if (!input || !table) return;
+
+    const filter = input.value.toLowerCase();
+    const rows = table.tBodies[0] ? Array.from(table.tBodies[0].rows) : [];
+
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(filter) ? '' : 'none';
+    });
+}
+
+/**
+ * Hitung profit otomatis pada form penjualan
+ */
+function calculateProfit() {
+    const capitalInput = document.getElementById('capital');
+    const revenueInput = document.getElementById('revenue');
+    const profitInput = document.getElementById('profit');
+    if (!capitalInput || !revenueInput || !profitInput) return;
+
+    const capital = parseFloat(capitalInput.value) || 0;
+    const revenue = parseFloat(revenueInput.value) || 0;
+    const profit = revenue - capital;
+
+    profitInput.value = profit;
+    profitInput.style.color = profit >= 0 ? 'var(--secondary)' : 'var(--danger)';
 }
 
 /**
@@ -137,7 +436,7 @@ function timeAgo(dateString) {
     const now = new Date();
     const date = new Date(dateString);
     const diff = Math.floor((now - date) / 1000);
-    
+
     if (diff < 60) return 'Baru saja';
     if (diff < 3600) return Math.floor(diff / 60) + ' menit lalu';
     if (diff < 86400) return Math.floor(diff / 3600) + ' jam lalu';
@@ -157,12 +456,12 @@ function showToast(message, type = 'success') {
         container.className = 'toast-container';
         document.body.appendChild(container);
     }
-    
+
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
     toast.textContent = message;
     container.appendChild(toast);
-    
+
     setTimeout(() => {
         toast.style.opacity = '0';
         toast.style.transform = 'translateX(100%)';
@@ -177,347 +476,70 @@ function confirmDelete(message) {
 
 // ===== Sidebar Toggle (Mobile) =====
 function toggleSidebar() {
-    const sidebar = document.querySelector('.sidebar');
+    const sidebar = document.getElementById('adminSidebar');
     if (sidebar) {
         sidebar.classList.toggle('show');
     }
 }
 
-// ===== Navbar Toggle (Mobile) =====
-function toggleNavbar() {
-    const nav = document.querySelector('.navbar-nav');
-    if (nav) {
-        nav.classList.toggle('show');
-    }
-}
+// ===== Sidebar Collapse (Desktop) =====
+function collapseSidebar() {
+    const sidebar = document.getElementById('adminSidebar');
+    const content = document.querySelector('.admin-content');
+    if (sidebar && content) {
+        sidebar.classList.toggle('collapsed');
+        content.classList.toggle('fullwidth');
 
-// ===== Modal Functions =====
-function openModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
-}
-
-function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
-    }
-}
-
-// Close modal on overlay click
-document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('modal-overlay')) {
-        e.target.classList.remove('active');
-        document.body.style.overflow = '';
-    }
-});
-
-// ===== Relay Toggle =====
-function toggleRelay(relayId, newStatus) {
-    fetch(`${BASE_URL}/api/update_relay_status.php`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `relay_id=${relayId}&status=${newStatus}`
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status === 'success') {
-            showToast(data.message, 'success');
-            // Update UI
-            const card = document.querySelector(`[data-relay-id="${relayId}"]`);
-            if (card) {
-                if (newStatus == 1) {
-                    card.classList.add('relay-on');
-                    card.querySelector('.relay-status').textContent = 'ON';
-                    card.querySelector('.relay-icon').textContent = '💡';
-                } else {
-                    card.classList.remove('relay-on');
-                    card.querySelector('.relay-status').textContent = 'OFF';
-                    card.querySelector('.relay-icon').textContent = '🔌';
-                }
-            }
-        } else {
-            showToast(data.message, 'error');
-        }
-    })
-    .catch(err => {
-        showToast('Gagal mengubah relay', 'error');
-        console.error(err);
-    });
-}
-
-// ===== Chart Helpers =====
-const chartColors = {
-    primary: 'rgba(37, 99, 235, 1)',
-    primaryBg: 'rgba(37, 99, 235, 0.1)',
-    secondary: 'rgba(5, 150, 105, 1)',
-    secondaryBg: 'rgba(5, 150, 105, 0.1)',
-    warning: 'rgba(217, 119, 6, 1)',
-    warningBg: 'rgba(217, 119, 6, 0.1)',
-    danger: 'rgba(220, 38, 38, 1)',
-    dangerBg: 'rgba(220, 38, 38, 0.1)',
-    info: 'rgba(8, 145, 178, 1)',
-    infoBg: 'rgba(8, 145, 178, 0.1)'
-};
-
-/**
- * Buat line chart
- */
-function createLineChart(canvasId, labels, datasets, title = '') {
-    const ctx = document.getElementById(canvasId);
-    if (!ctx) return null;
-    
-    return new Chart(ctx, {
-        type: 'line',
-        data: { labels, datasets },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: { display: !!title, text: title },
-                legend: { position: 'top' }
-            },
-            scales: {
-                x: {
-                    grid: { display: false },
-                    ticks: { maxTicksLimit: 12 }
-                },
-                y: {
-                    beginAtZero: false,
-                    grid: { color: 'rgba(0,0,0,0.05)' }
-                }
-            },
-            interaction: {
-                intersect: false,
-                mode: 'index'
-            },
-            elements: {
-                point: { radius: 2, hoverRadius: 5 },
-                line: { tension: 0.3 }
-            }
-        }
-    });
-}
-
-/**
- * Buat bar chart
- */
-function createBarChart(canvasId, labels, data, title = '', color = null) {
-    const ctx = document.getElementById(canvasId);
-    if (!ctx) return null;
-    
-    const bgColor = color || chartColors.primary;
-    
-    return new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels,
-            datasets: [{
-                label: title,
-                data,
-                backgroundColor: data.map(v => v >= 0 ? chartColors.secondaryBg : chartColors.dangerBg),
-                borderColor: data.map(v => v >= 0 ? chartColors.secondary : chartColors.danger),
-                borderWidth: 2,
-                borderRadius: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: { display: !!title, text: title },
-                legend: { display: false }
-            },
-            scales: {
-                x: { grid: { display: false } },
-                y: { grid: { color: 'rgba(0,0,0,0.05)' } }
-            }
-        }
-    });
-}
-
-/**
- * Buat doughnut chart
- */
-function createDoughnutChart(canvasId, labels, data, title = '') {
-    const ctx = document.getElementById(canvasId);
-    if (!ctx) return null;
-    
-    const colors = [
-        '#2563eb', '#059669', '#d97706', '#dc2626', '#0891b2',
-        '#7c3aed', '#db2777', '#65a30d', '#ea580c', '#0284c7'
-    ];
-    
-    return new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels,
-            datasets: [{
-                data,
-                backgroundColor: colors.slice(0, labels.length),
-                borderWidth: 2,
-                borderColor: '#fff'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: { display: !!title, text: title },
-                legend: { position: 'bottom' }
-            }
-        }
-    });
-}
-
-// ===== Sales Chart Period Selector =====
-function loadSalesChart(period) {
-    // Update active button
-    document.querySelectorAll('.period-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    event.target.classList.add('active');
-    
-    fetch(`${BASE_URL}/admin/sales_chart.php?ajax=1&period=${period}`)
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === 'success') {
-                updateSalesCharts(data);
-            }
-        })
-        .catch(err => console.error('Chart error:', err));
-}
-
-function updateSalesCharts(data) {
-    // Destroy existing charts
-    if (window.profitChart) window.profitChart.destroy();
-    if (window.trendChart) window.trendChart.destroy();
-    if (window.productChart) window.productChart.destroy();
-    
-    // Profit bar chart
-    window.profitChart = createBarChart('profitChart', data.labels, data.profits, 'Keuntungan');
-    
-    // Trend line chart
-    window.trendChart = createLineChart('trendChart', data.labels, [
-        {
-            label: 'Modal',
-            data: data.capitals,
-            borderColor: chartColors.danger,
-            backgroundColor: chartColors.dangerBg,
-            fill: true
-        },
-        {
-            label: 'Pendapatan',
-            data: data.revenues,
-            borderColor: chartColors.secondary,
-            backgroundColor: chartColors.secondaryBg,
-            fill: true
-        },
-        {
-            label: 'Keuntungan',
-            data: data.profits,
-            borderColor: chartColors.primary,
-            backgroundColor: chartColors.primaryBg,
-            fill: true
-        }
-    ], 'Trend Penjualan');
-    
-    // Product doughnut
-    if (data.products && data.product_totals) {
-        window.productChart = createDoughnutChart('productChart', data.products, data.product_totals, 'Per Produk');
-    }
-}
-
-// ===== Table Search =====
-function searchTable(inputId, tableId) {
-    const input = document.getElementById(inputId);
-    const table = document.getElementById(tableId);
-    if (!input || !table) return;
-    
-    const filter = input.value.toLowerCase();
-    const rows = table.querySelectorAll('tbody tr');
-    
-    rows.forEach(row => {
-        const text = row.textContent.toLowerCase();
-        row.style.display = text.includes(filter) ? '' : 'none';
-    });
-}
-
-// ===== Export to CSV =====
-function exportTableCSV(tableId, filename) {
-    const table = document.getElementById(tableId);
-    if (!table) return;
-    
-    let csv = '\ufeff'; // BOM
-    const rows = table.querySelectorAll('tr');
-    
-    rows.forEach(row => {
-        const cols = row.querySelectorAll('td, th');
-        const rowData = [];
-        cols.forEach(col => {
-            let text = col.textContent.trim().replace(/"/g, '""');
-            rowData.push('"' + text + '"');
-        });
-        csv += rowData.join(',') + '\n';
-    });
-    
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = filename || 'export.csv';
-    link.click();
-}
-
-// ===== Auto Calculate Profit =====
-function calculateProfit() {
-    const capital = parseFloat(document.getElementById('capital')?.value) || 0;
-    const revenue = parseFloat(document.getElementById('revenue')?.value) || 0;
-    const profitEl = document.getElementById('profit');
-    if (profitEl) {
-        const profit = revenue - capital;
-        profitEl.value = profit;
-        profitEl.style.color = profit >= 0 ? 'var(--secondary)' : 'var(--danger)';
+        // Save state to localStorage
+        const isCollapsed = sidebar.classList.contains('collapsed');
+        localStorage.setItem('sidebarCollapsed', isCollapsed);
     }
 }
 
 // ===== DOMContentLoaded =====
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
+    // Restore sidebar state
+    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+    if (isCollapsed && window.innerWidth > 768) {
+        const sidebar = document.getElementById('adminSidebar');
+        const content = document.querySelector('.admin-content');
+        if (sidebar && content) {
+            sidebar.classList.add('collapsed');
+            content.classList.add('fullwidth');
+        }
+    }
     // Auto-refresh for dashboard pages
     const dashboardEl = document.querySelector('[data-refresh-type]');
     if (dashboardEl) {
         const type = dashboardEl.getAttribute('data-refresh-type');
         startAutoRefresh(type);
     }
-    
+
     // Mobile navbar toggle
     const navToggle = document.querySelector('.navbar-toggle');
     if (navToggle) {
         navToggle.addEventListener('click', toggleNavbar);
     }
-    
+
     // Sidebar toggle button
     const sideToggle = document.querySelector('.sidebar-toggle-btn');
     if (sideToggle) {
         sideToggle.addEventListener('click', toggleSidebar);
     }
-    
+
     // Auto-calculate profit
     const capitalInput = document.getElementById('capital');
     const revenueInput = document.getElementById('revenue');
     if (capitalInput) capitalInput.addEventListener('input', calculateProfit);
     if (revenueInput) revenueInput.addEventListener('input', calculateProfit);
-    
+
     // Table search
     const searchInputs = document.querySelectorAll('[data-search-table]');
     searchInputs.forEach(input => {
         const tableId = input.getAttribute('data-search-table');
         input.addEventListener('input', () => searchTable(input.id, tableId));
     });
-    
+
     // Close alert auto
     document.querySelectorAll('.alert').forEach(alert => {
         setTimeout(() => {
