@@ -1,0 +1,10 @@
+DirectoryIndex index.php
+AddDefaultCharset UTF-8
+
+<FilesMatch "\.(sql|zip|rar|md|log)$">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "^(generate_dummy|test_chart|update_sidebars|update_sidebars_icons)\.php$">
+    Require all denied
+</FilesMatch>

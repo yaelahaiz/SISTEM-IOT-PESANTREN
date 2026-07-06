@@ -6,6 +6,8 @@
  * @package Riyadul Muta'alimin
  */
 
+require_once __DIR__ . '/app.php';
+
 /**
  * Sanitasi input dari user
  * @param string $data Input data
@@ -229,9 +231,7 @@ function exportToCSV($data, $filename) {
  * @return string Base URL
  */
 function getBaseUrl() {
-    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
-    $host = $_SERVER['HTTP_HOST'];
-    return $protocol . '://' . $host . '/SISTEM-IOT-PESANTREN';
+    return appUrl();
 }
 
 /**

@@ -6,7 +6,7 @@
 
 const char* WIFI_SSID = "NamaWiFi";
 const char* WIFI_PASS = "PasswordWiFi";
-const char* SERVER_URL = "http://192.168.1.100/SISTEM-IOT-PESANTREN/api/";
+const char* SERVER_URL = "http://monitoring-pesantren-rm.arndilhmzbr.engineer/api/";
 const char* API_KEY_SOLAR = "SOLAR_API_KEY_2024";
 const char* API_KEY_DRYER = "DRYER_API_KEY_2024";
 const char* API_KEY_CATTLE = "CATTLE_API_KEY_2024";

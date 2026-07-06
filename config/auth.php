@@ -6,6 +6,8 @@
  * @package Riyadul Muta'alimin
  */
 
+require_once __DIR__ . '/app.php';
+
 // Mulai session jika belum dimulai
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -25,8 +27,7 @@ function isLoggedIn() {
  */
 function requireLogin() {
     if (!isLoggedIn()) {
-        // Tentukan path relatif ke login.php
-        $loginPath = '/SISTEM-IOT-PESANTREN/login.php';
+        $loginPath = appUrl('login.php');
         header("Location: $loginPath");
         exit();
     }

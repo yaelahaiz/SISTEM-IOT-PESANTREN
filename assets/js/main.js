@@ -4,7 +4,13 @@
  */
 
 // ===== Base URL =====
-const BASE_URL = window.location.origin + '/SISTEM-IOT-PESANTREN';
+const APP_PROJECT_DIR = 'SISTEM-IOT-PESANTREN';
+const APP_PATH_MARKER = `/${APP_PROJECT_DIR}/`;
+const APP_PATH_INDEX = window.location.pathname.indexOf(APP_PATH_MARKER);
+const APP_BASE_PATH = APP_PATH_INDEX >= 0
+    ? window.location.pathname.substring(0, APP_PATH_INDEX) + `/${APP_PROJECT_DIR}`
+    : '';
+const BASE_URL = window.location.origin + APP_BASE_PATH;
 
 // ===== Chart Colors =====
 const chartColors = {
