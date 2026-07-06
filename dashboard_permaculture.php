@@ -4,6 +4,17 @@ require_once 'config/functions.php';
 
 $latest = getLatestPermacultureData($conn);
 $ph = $latest['soil_ph'] ?? 7.0;
+
+// Get chart data (last 20 records)
+$chartQuery = $conn->query("SELECT soil_ph, DATE_FORMAT(recorded_at, '%H:%i') as time_label FROM permaculture_monitoring ORDER BY id DESC LIMIT 20");
+$chartLabels = [];
+$chartPh = [];
+if ($chartQuery) {
+    while($row = $chartQuery->fetch_assoc()) {
+        array_unshift($chartLabels, $row['time_label']);
+        array_unshift($chartPh, floatval($row['soil_ph']));
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -12,6 +23,7 @@ $ph = $latest['soil_ph'] ?? 7.0;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monitoring Permaculture - IoT Pesantren</title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body data-refresh-type="permaculture">
 
@@ -58,6 +70,13 @@ $ph = $latest['soil_ph'] ?? 7.0;
             </div>
         </div>
 
+        <div class="chart-container">
+            <h3>Grafik pH Tanah (20 Data Terakhir)</h3>
+            <div class="chart-wrapper">
+                <canvas id="phChart"></canvas>
+            </div>
+        </div>
+
         <div class="table-responsive mt-3">
             <table class="data-table">
                 <thead>
@@ -99,5 +118,55 @@ $ph = $latest['soil_ph'] ?? 7.0;
     </div>
 
     <script src="assets/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const labels = <?= json_encode($chartLabels) ?>;
+            const phData = <?= json_encode($chartPh) ?>;
+            
+            if(labels.length > 0) {
+                const ctx = document.getElementById('phChart');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'pH Tanah',
+                            data: phData,
+                            borderColor: '#059669',
+                            backgroundColor: 'rgba(5, 150, 105, 0.1)',
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 3,
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'top' },
+                            annotation: {}
+                        },
+                        scales: {
+                            y: {
+                                min: 0,
+                                max: 14,
+                                grid: { color: 'rgba(0,0,0,0.05)' },
+                                ticks: {
+                                    callback: function(value) {
+                                        if (value === 0) return '0 (Asam)';
+                                        if (value === 7) return '7 (Netral)';
+                                        if (value === 14) return '14 (Basa)';
+                                        return value;
+                                    }
+                                }
+                            },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

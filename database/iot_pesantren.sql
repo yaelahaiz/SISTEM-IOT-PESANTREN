@@ -164,12 +164,12 @@ CREATE TABLE IF NOT EXISTS settings (
 -- INSERT DATA DEFAULT
 -- ============================================================
 
--- Admin user (password: admin123)
+-- Admin user (password: password)
 INSERT INTO users (username, password, full_name, email, role) VALUES
 ('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Administrator', 'admin@pesantren.id', 'admin');
--- NOTE: Hash di atas untuk 'password'. Jalankan script berikut untuk update:
--- UPDATE users SET password = '$2y$10$...' WHERE username = 'admin';
--- Atau gunakan: php -r "echo password_hash('admin123', PASSWORD_BCRYPT);"
+-- NOTE: Hash di atas untuk 'password'. Login dengan username: admin, password: password
+-- Untuk mengubah password, gunakan halaman admin/settings.php atau jalankan:
+-- php -r "echo password_hash('passwordbaru', PASSWORD_BCRYPT);"
 
 -- Devices
 INSERT INTO devices (device_name, device_type, mac_address, location, api_key, is_active) VALUES
@@ -323,7 +323,8 @@ INSERT INTO sales (product_name, capital, revenue, sale_date, notes) VALUES
 ('Madu Lebah', 150000, 255000, DATE_SUB(CURDATE(), INTERVAL 58 DAY), '3 botol');
 
 -- ============================================================
--- Update password admin menjadi 'admin123'
--- Jalankan query ini setelah import jika hash tidak sesuai:
+-- Login Admin Default:
+-- Username: admin
+-- Password: password
+-- Ubah password melalui halaman admin Settings setelah login.
 -- ============================================================
--- UPDATE users SET password = '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi' WHERE username = 'admin';

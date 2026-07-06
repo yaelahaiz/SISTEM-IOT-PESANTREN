@@ -26,7 +26,7 @@ function isLoggedIn() {
 function requireLogin() {
     if (!isLoggedIn()) {
         // Tentukan path relatif ke login.php
-        $loginPath = '/SISTEM IOT PESANTREN/login.php';
+        $loginPath = '/SISTEM-IOT-PESANTREN/login.php';
         header("Location: $loginPath");
         exit();
     }

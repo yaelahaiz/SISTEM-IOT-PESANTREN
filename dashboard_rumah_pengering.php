@@ -3,6 +3,21 @@ require_once 'config/database.php';
 require_once 'config/functions.php';
 
 $latest = getLatestDryerData($conn);
+
+// Get chart data (last 20 records)
+$chartQuery = $conn->query("SELECT temperature, voltage_ac, power_ac, DATE_FORMAT(recorded_at, '%H:%i') as time_label FROM dryer_monitoring ORDER BY id DESC LIMIT 20");
+$chartLabels = [];
+$chartTemps = [];
+$chartVolts = [];
+$chartPower = [];
+if ($chartQuery) {
+    while($row = $chartQuery->fetch_assoc()) {
+        array_unshift($chartLabels, $row['time_label']);
+        array_unshift($chartTemps, floatval($row['temperature']));
+        array_unshift($chartVolts, floatval($row['voltage_ac']));
+        array_unshift($chartPower, floatval($row['power_ac']));
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -11,6 +26,7 @@ $latest = getLatestDryerData($conn);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monitoring Rumah Pengering - IoT Pesantren</title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body data-refresh-type="dryer">
 
@@ -74,6 +90,13 @@ $latest = getLatestDryerData($conn);
             </div>
         </div>
 
+        <div class="chart-container">
+            <h3>Grafik Suhu, Tegangan AC & Daya (20 Data Terakhir)</h3>
+            <div class="chart-wrapper">
+                <canvas id="dryerChart"></canvas>
+            </div>
+        </div>
+
         <div class="table-responsive mt-3">
             <table class="data-table">
                 <thead>
@@ -110,5 +133,37 @@ $latest = getLatestDryerData($conn);
     </div>
 
     <script src="assets/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const labels = <?= json_encode($chartLabels) ?>;
+            const temps = <?= json_encode($chartTemps) ?>;
+            const volts = <?= json_encode($chartVolts) ?>;
+            const power = <?= json_encode($chartPower) ?>;
+            
+            if(labels.length > 0) {
+                createLineChart('dryerChart', labels, [
+                    {
+                        label: 'Suhu (°C)',
+                        data: temps,
+                        borderColor: '#d97706',
+                        backgroundColor: 'rgba(217, 119, 6, 0.1)',
+                        fill: true
+                    },
+                    {
+                        label: 'Tegangan AC (V)',
+                        data: volts,
+                        borderColor: '#2563eb',
+                        backgroundColor: 'transparent'
+                    },
+                    {
+                        label: 'Daya AC (W)',
+                        data: power,
+                        borderColor: '#059669',
+                        backgroundColor: 'transparent'
+                    }
+                ]);
+            }
+        });
+    </script>
 </body>
 </html>

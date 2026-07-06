@@ -4,7 +4,7 @@
  */
 
 // ===== Base URL =====
-const BASE_URL = window.location.origin + '/SISTEM IOT PESANTREN';
+const BASE_URL = window.location.origin + '/SISTEM-IOT-PESANTREN';
 
 // ===== Auto Refresh =====
 let refreshInterval = null;
