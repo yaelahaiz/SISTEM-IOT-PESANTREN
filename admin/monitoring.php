@@ -56,7 +56,7 @@ $tables = [
     ],
     'cattle' => [
         'table' => 'cattle_monitoring',
-        'title' => 'Kandang Sapi / Biodigester',
+        'title' => 'Biodigester',
         'columns' => ['Waktu', 'Level Cairan (cm)', 'Volume (L)', 'Tekanan Gas (kPa)', 'Kelembaban Tanah (Raw)', 'Kelembaban (%)'],
         'fields' => ['recorded_at', 'liquid_level', 'liquid_volume', 'gas_pressure', 'soil_moisture_raw', 'soil_moisture_percent']
     ],
@@ -90,7 +90,7 @@ $dataStmt->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitoring Data - IoT Pesantren</title>
+    <title>Monitoring Data - Riyadul Muta'alimin</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
@@ -102,7 +102,8 @@ $dataStmt->close();
         <aside class="sidebar" id="adminSidebar">
             <div class="sidebar-header">
                 <div class="logo-full">
-                    <h2>IoT<span>Pesantren</span></h2>
+                    <h2>Riyadul <span>Muta'alimin</span></h2>
+                    <small style="display:block; font-size:0.8rem; color:var(--text-light); margin-top:4px;">Powered By Bestari</small>
                 </div>
                 <div class="logo-mini">
                     <h2>I<span>P</span></h2>
@@ -232,3 +233,4 @@ $dataStmt->close();
     <script src="../assets/js/main.js"></script>
 </body>
 </html>
+

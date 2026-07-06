@@ -26,7 +26,7 @@ if ($chartQuery) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitoring Kandang Sapi - IoT Pesantren</title>
+    <title>Monitoring Biodigester - Riyadul Muta'alimin</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -34,20 +34,25 @@ if ($chartQuery) {
 
     <nav class="navbar">
         <div class="navbar-inner">
-            <a href="index.php" class="navbar-brand">IoT<span>Pesantren</span></a>
+            <a href="index.php" class="navbar-brand">
+                <div style="display:flex; flex-direction:column; align-items:flex-start; gap:2px;">
+                    <span>Riyadul <span>Muta'alimin</span></span>
+                    <small style="font-size:0.8rem; color:var(--text-light);">Powered By Bestari</small>
+                </div>
+            </a>
             <button class="navbar-toggle">☰</button>
             <ul class="navbar-nav">
                 <li><a href="index.php">Beranda</a></li>
                 <li><a href="dashboard_panel_surya.php">Panel Surya</a></li>
                 <li><a href="dashboard_rumah_pengering.php">Rumah Pengering</a></li>
-                <li><a href="dashboard_kandang_sapi.php" class="active">Kandang Sapi</a></li>
+                <li><a href="dashboard_kandang_sapi.php" class="active">Biodigester</a></li>
                 <li><a href="dashboard_permaculture.php">Permaculture</a></li>
             </ul>
         </div>
     </nav>
 
     <div class="container" style="margin-top:30px; margin-bottom: 50px;">
-        <h2 class="section-title">Monitoring Kandang Sapi & Biodigester</h2>
+        <h2 class="section-title">Monitoring Biodigester</h2>
         
         <h3 class="mt-3 mb-2">Data Biodigester</h3>
         <div class="dashboard-grid">
@@ -76,7 +81,7 @@ if ($chartQuery) {
             </div>
         </div>
 
-        <h3 class="mt-3 mb-2">Data Kelembaban Tanah (Kandang)</h3>
+        <h3 class="mt-3 mb-2">Data Kelembaban Tanah (Bunga Matahari)</h3>
         <div class="dashboard-grid">
             <div class="card" id="cattle-moisture">
                 <div class="card-header cattle">
@@ -169,3 +174,4 @@ if ($chartQuery) {
     </script>
 </body>
 </html>
+

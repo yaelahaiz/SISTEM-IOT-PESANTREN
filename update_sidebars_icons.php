@@ -6,7 +6,8 @@ $sidebar_template = <<<EOT
 <aside class="sidebar" id="adminSidebar">
             <div class="sidebar-header">
                 <div class="logo-full">
-                    <h2>IoT<span>Pesantren</span></h2>
+                    <h2>Riyadul <span>Muta'alimin</span></h2>
+                    <small style="display:block; font-size:0.8rem; color:var(--text-light); margin-top:4px;">Powered By Bestari</small>
                 </div>
                 <div class="logo-mini">
                     <h2>I<span>P</span></h2>

@@ -5,7 +5,8 @@ $files = ['dashboard.php', 'devices.php', 'sensors.php', 'monitoring.php', 'rela
 $sidebar_template = <<<EOT
 <aside class="sidebar" id="adminSidebar">
             <div class="sidebar-header">
-                <h2>IoT<span>Pesantren</span></h2>
+                <h2>Riyadul <span>Muta'alimin</span></h2>
+                <small style="display:block; font-size:0.8rem; color:var(--text-light); margin-top:4px;">Powered By Bestari</small>
                 <button class="sidebar-collapse-btn" onclick="collapseSidebar()" title="Tutup/Buka Sidebar">&#10094;</button>
             </div>
             <ul class="sidebar-nav">

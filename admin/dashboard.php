@@ -70,7 +70,7 @@ if ($permQuery) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin - IoT Pesantren</title>
+    <title>Dashboard Admin - Riyadul Muta'alimin</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -84,7 +84,8 @@ if ($permQuery) {
         <aside class="sidebar" id="adminSidebar">
             <div class="sidebar-header">
                 <div class="logo-full">
-                    <h2>IoT<span>Pesantren</span></h2>
+                    <h2>Riyadul <span>Muta'alimin</span></h2>
+                    <small style="display:block; font-size:0.8rem; color:var(--text-light); margin-top:4px;">Powered By Bestari</small>
                 </div>
                 <div class="logo-mini">
                     <h2>I<span>P</span></h2>
@@ -161,7 +162,7 @@ if ($permQuery) {
                             $systems = [
                                 ['name' => 'Panel Surya', 'table' => 'solar_monitoring', 'link' => '../dashboard_panel_surya.php'],
                                 ['name' => 'Rumah Pengering', 'table' => 'dryer_monitoring', 'link' => '../dashboard_rumah_pengering.php'],
-                                ['name' => 'Kandang Sapi', 'table' => 'cattle_monitoring', 'link' => '../dashboard_kandang_sapi.php'],
+                                ['name' => 'Biodigester', 'table' => 'cattle_monitoring', 'link' => '../dashboard_kandang_sapi.php'],
                                 ['name' => 'Permaculture', 'table' => 'permaculture_monitoring', 'link' => '../dashboard_permaculture.php']
                             ];
                             
@@ -221,7 +222,7 @@ if ($permQuery) {
                 <!-- Cattle Chart Mini -->
                 <div class="card">
                     <div class="card-header cattle">
-                        <h3>Grafik Kandang Sapi</h3>
+                        <h3>Grafik Biodigester</h3>
                     </div>
                     <div style="height: 250px;">
                         <canvas id="miniCattleChart"></canvas>
@@ -352,3 +353,4 @@ if ($permQuery) {
     </script>
 </body>
 </html>
+

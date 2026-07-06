@@ -3,7 +3,7 @@
  * Database Configuration
  * Koneksi ke database MySQL menggunakan MySQLi
  * 
- * @package IoT Pesantren
+ * @package Riyadul Muta'alimin
  */
 
 // Konfigurasi database
@@ -38,3 +38,4 @@ $conn->set_charset(DB_CHARSET);
 
 // Set timezone
 $conn->query("SET time_zone = '+07:00'");
+

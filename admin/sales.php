@@ -89,7 +89,7 @@ $sales = $conn->query("SELECT * FROM sales ORDER BY sale_date DESC, id DESC LIMI
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pencatatan Penjualan - IoT Pesantren</title>
+    <title>Pencatatan Penjualan - Riyadul Muta'alimin</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
@@ -101,7 +101,8 @@ $sales = $conn->query("SELECT * FROM sales ORDER BY sale_date DESC, id DESC LIMI
         <aside class="sidebar" id="adminSidebar">
             <div class="sidebar-header">
                 <div class="logo-full">
-                    <h2>IoT<span>Pesantren</span></h2>
+                    <h2>Riyadul <span>Muta'alimin</span></h2>
+                    <small style="display:block; font-size:0.8rem; color:var(--text-light); margin-top:4px;">Powered By Bestari</small>
                 </div>
                 <div class="logo-mini">
                     <h2>I<span>P</span></h2>
@@ -345,3 +346,4 @@ $sales = $conn->query("SELECT * FROM sales ORDER BY sale_date DESC, id DESC LIMI
     </script>
 </body>
 </html>
+

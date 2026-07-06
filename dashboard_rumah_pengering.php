@@ -24,7 +24,7 @@ if ($chartQuery) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitoring Rumah Pengering - IoT Pesantren</title>
+    <title>Monitoring Rumah Pengering - Riyadul Muta'alimin</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -32,13 +32,18 @@ if ($chartQuery) {
 
     <nav class="navbar">
         <div class="navbar-inner">
-            <a href="index.php" class="navbar-brand">IoT<span>Pesantren</span></a>
+            <a href="index.php" class="navbar-brand">
+                <div style="display:flex; flex-direction:column; align-items:flex-start; gap:2px;">
+                    <span>Riyadul <span>Muta'alimin</span></span>
+                    <small style="font-size:0.8rem; color:var(--text-light);">Powered By Bestari</small>
+                </div>
+            </a>
             <button class="navbar-toggle">☰</button>
             <ul class="navbar-nav">
                 <li><a href="index.php">Beranda</a></li>
                 <li><a href="dashboard_panel_surya.php">Panel Surya</a></li>
                 <li><a href="dashboard_rumah_pengering.php" class="active">Rumah Pengering</a></li>
-                <li><a href="dashboard_kandang_sapi.php">Kandang Sapi</a></li>
+                <li><a href="dashboard_kandang_sapi.php">Biodigester</a></li>
                 <li><a href="dashboard_permaculture.php">Permaculture</a></li>
             </ul>
         </div>
@@ -167,3 +172,4 @@ if ($chartQuery) {
     </script>
 </body>
 </html>
+

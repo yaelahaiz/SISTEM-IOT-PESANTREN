@@ -6,62 +6,125 @@ require_once '../config/functions.php';
 requireLogin();
 $user = getCurrentUser($conn);
 
-// AJAX request for chart data
-if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
-    header('Content-Type: application/json');
-    $period = $_GET['period'] ?? '7days';
-    
+function buildSalesPeriodTimeline($period, $month = null) {
+    $now = new DateTime();
+    $labels = [];
+
+    switch ($period) {
+        case '7days':
+            $start = (clone $now)->modify('-6 days');
+            $keyFormat = 'Y-m-d';
+            $displayFormat = 'd/m';
+            $interval = new DateInterval('P1D');
+            break;
+        case '1month':
+            $year = (int)date('Y');
+            $month = $month ? intval($month) : (int)date('n');
+            $start = new DateTime(sprintf('%04d-%02d-01', $year, $month));
+            $now = (clone $start)->modify('last day of this month');
+            $keyFormat = 'Y-m-d';
+            $displayFormat = 'd/m';
+            $interval = new DateInterval('P1D');
+            break;
+        case '1year':
+            $start = (clone $now)->modify('first day of -11 months');
+            $keyFormat = 'Y-m';
+            $displayFormat = 'M Y';
+            $interval = new DateInterval('P1M');
+            break;
+        default:
+            $start = (clone $now)->modify('-6 days');
+            $keyFormat = 'Y-m-d';
+            $displayFormat = 'd/m';
+            $interval = new DateInterval('P1D');
+            break;
+    }
+
+    $current = clone $start;
+    while ($current <= $now) {
+        $labels[$current->format($keyFormat)] = $current->format($displayFormat);
+        $current->add($interval);
+    }
+
+    return $labels;
+}
+
+function getSalesChartData($conn, $period, $month = null) {
+    $timeline = buildSalesPeriodTimeline($period, $month);
+    $chartData = array_fill_keys(array_keys($timeline), ['capital' => 0, 'revenue' => 0, 'profit' => 0]);
+    $year = (int)date('Y');
+    $month = $month ? intval($month) : (int)date('n');
+
     switch ($period) {
         case '7days':
             $query = "SELECT DATE(sale_date) as label, SUM(capital) as capital, SUM(revenue) as revenue, SUM(profit) as profit
-                      FROM sales 
+                      FROM sales
                       WHERE sale_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
                       GROUP BY DATE(sale_date) ORDER BY DATE(sale_date)";
             break;
         case '1month':
             $query = "SELECT DATE(sale_date) as label, SUM(capital) as capital, SUM(revenue) as revenue, SUM(profit) as profit
-                      FROM sales 
-                      WHERE sale_date >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
+                      FROM sales
+                      WHERE YEAR(sale_date) = $year AND MONTH(sale_date) = $month
                       GROUP BY DATE(sale_date) ORDER BY DATE(sale_date)";
             break;
         case '1year':
             $query = "SELECT DATE_FORMAT(sale_date, '%Y-%m') as label, SUM(capital) as capital, SUM(revenue) as revenue, SUM(profit) as profit
-                      FROM sales 
+                      FROM sales
                       WHERE sale_date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
                       GROUP BY DATE_FORMAT(sale_date, '%Y-%m') ORDER BY label";
             break;
         default:
             $query = "SELECT DATE(sale_date) as label, SUM(capital) as capital, SUM(revenue) as revenue, SUM(profit) as profit
-                      FROM sales 
+                      FROM sales
                       WHERE sale_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
                       GROUP BY DATE(sale_date) ORDER BY DATE(sale_date)";
+            break;
     }
-    
+
     $result = $conn->query($query);
-    $labels = []; $capitals = []; $revenues = []; $profits = [];
-    
     if ($result) {
         while ($row = $result->fetch_assoc()) {
-            if ($period === '1year') {
-                $labels[] = date('M Y', strtotime($row['label'] . '-01'));
-            } else {
-                $labels[] = date('d/m', strtotime($row['label']));
+            if (isset($chartData[$row['label']])) {
+                $chartData[$row['label']] = [
+                    'capital' => (float)$row['capital'],
+                    'revenue' => (float)$row['revenue'],
+                    'profit' => (float)$row['profit']
+                ];
             }
-            $capitals[] = (float)$row['capital'];
-            $revenues[] = (float)$row['revenue'];
-            $profits[] = (float)$row['profit'];
         }
     }
-    
+
+    $labels = [];
+    $capitals = [];
+    $revenues = [];
+    $profits = [];
+    foreach ($chartData as $key => $values) {
+        $labels[] = $timeline[$key];
+        $capitals[] = $values['capital'];
+        $revenues[] = $values['revenue'];
+        $profits[] = $values['profit'];
+    }
+
+    return [$labels, $capitals, $revenues, $profits];
+}
+
+// AJAX request for chart data
+if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
+    header('Content-Type: application/json');
+    $period = $_GET['period'] ?? '7days';
+    $month = $_GET['month'] ?? date('n');
+    list($labels, $capitals, $revenues, $profits) = getSalesChartData($conn, $period, $month);
+
     // Product breakdown
     switch ($period) {
         case '7days': $interval = '7 DAY'; break;
         case '1month': $interval = '1 MONTH'; break;
         case '1year': $interval = '1 YEAR'; break;
-        default: $interval = '7 DAY';
+        default: $interval = '7 DAY'; break;
     }
-    
-    $productQuery = "SELECT product_name, SUM(revenue) as total 
+
+    $productQuery = "SELECT product_name, SUM(revenue) as total
                      FROM sales WHERE sale_date >= DATE_SUB(CURDATE(), INTERVAL $interval)
                      GROUP BY product_name ORDER BY total DESC LIMIT 10";
     $productResult = $conn->query($productQuery);
@@ -72,7 +135,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
             $productTotals[] = (float)$row['total'];
         }
     }
-    
+
     echo json_encode([
         'status' => 'success',
         'labels' => $labels,
@@ -86,19 +149,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
 }
 
 // Default chart data (7 days)
-$defaultData = $conn->query("SELECT DATE(sale_date) as label, SUM(capital) as capital, SUM(revenue) as revenue, SUM(profit) as profit
-    FROM sales WHERE sale_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
-    GROUP BY DATE(sale_date) ORDER BY DATE(sale_date)");
-
-$labels = []; $capitals = []; $revenues = []; $profits = [];
-if ($defaultData) {
-    while ($row = $defaultData->fetch_assoc()) {
-        $labels[] = date('d/m', strtotime($row['label']));
-        $capitals[] = (float)$row['capital'];
-        $revenues[] = (float)$row['revenue'];
-        $profits[] = (float)$row['profit'];
-    }
-}
+list($labels, $capitals, $revenues, $profits) = getSalesChartData($conn, '7days');
 
 // Product breakdown
 $productData = $conn->query("SELECT product_name, SUM(revenue) as total FROM sales WHERE sale_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY product_name ORDER BY total DESC LIMIT 10");
@@ -120,7 +171,7 @@ $summaryYear = $conn->query("SELECT COALESCE(SUM(capital),0) as cap, COALESCE(SU
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grafik Penjualan - IoT Pesantren</title>
+    <title>Grafik Penjualan - Riyadul Muta'alimin</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
@@ -133,7 +184,8 @@ $summaryYear = $conn->query("SELECT COALESCE(SUM(capital),0) as cap, COALESCE(SU
         <aside class="sidebar" id="adminSidebar">
             <div class="sidebar-header">
                 <div class="logo-full">
-                    <h2>IoT<span>Pesantren</span></h2>
+                    <h2>Riyadul <span>Muta'alimin</span></h2>
+                    <small style="display:block; font-size:0.8rem; color:var(--text-light); margin-top:4px;">Powered By Bestari</small>
                 </div>
                 <div class="logo-mini">
                     <h2>I<span>P</span></h2>
@@ -169,6 +221,10 @@ $summaryYear = $conn->query("SELECT COALESCE(SUM(capital),0) as cap, COALESCE(SU
                 <button class="btn btn-primary period-btn active" onclick="loadSalesChart('7days')">7 Hari</button>
                 <button class="btn btn-outline period-btn" onclick="loadSalesChart('1month')">1 Bulan</button>
                 <button class="btn btn-outline period-btn" onclick="loadSalesChart('1year')">1 Tahun</button>
+            </div>
+            <div id="salesMonthFilter" class="d-flex gap-2 mb-3 flex-wrap" style="display:none; align-items:center;">
+                <label for="salesMonth" style="margin:0; font-weight:600;">Pilih Bulan:</label>
+                <select id="salesMonth" class="form-control" onchange="loadSalesChart('1month', this.value)"></select>
             </div>
 
             <!-- Summary per Period -->
@@ -232,8 +288,39 @@ $summaryYear = $conn->query("SELECT COALESCE(SUM(capital),0) as cap, COALESCE(SU
     const initProfits = <?= json_encode($profits) ?>;
     const initProducts = <?= json_encode($productNames) ?>;
     const initProductTotals = <?= json_encode($productTotals) ?>;
+    const monthOptions = [
+        { value: '1', label: 'Januari' },
+        { value: '2', label: 'Februari' },
+        { value: '3', label: 'Maret' },
+        { value: '4', label: 'April' },
+        { value: '5', label: 'Mei' },
+        { value: '6', label: 'Juni' },
+        { value: '7', label: 'Juli' },
+        { value: '8', label: 'Agustus' },
+        { value: '9', label: 'September' },
+        { value: '10', label: 'Oktober' },
+        { value: '11', label: 'November' },
+        { value: '12', label: 'Desember' }
+    ];
+    const selectedMonth = new Date().getMonth() + 1;
+
+    function initMonthFilter() {
+        const monthSelect = document.getElementById('salesMonth');
+        if (!monthSelect) return;
+
+        monthSelect.innerHTML = '';
+        monthOptions.forEach(month => {
+            const option = document.createElement('option');
+            option.value = month.value;
+            option.textContent = month.label;
+            if (parseInt(month.value, 10) === selectedMonth) option.selected = true;
+            monthSelect.appendChild(option);
+        });
+    }
 
     document.addEventListener('DOMContentLoaded', function() {
+        initMonthFilter();
+
         // Create initial charts
         window.profitChart = createBarChart('profitChart', initLabels, initProfits, 'Keuntungan');
         
@@ -256,8 +343,10 @@ $summaryYear = $conn->query("SELECT COALESCE(SUM(capital),0) as cap, COALESCE(SU
                 label: 'Keuntungan',
                 data: initProfits,
                 borderColor: chartColors.primary,
-                backgroundColor: chartColors.primaryBg,
-                fill: true
+                backgroundColor: 'rgba(0, 150, 120, 0.08)',
+                pointBackgroundColor: chartColors.primary,
+                pointBorderColor: chartColors.primary,
+                fill: false
             }
         ], 'Trend Penjualan');
 
@@ -268,3 +357,4 @@ $summaryYear = $conn->query("SELECT COALESCE(SUM(capital),0) as cap, COALESCE(SU
     </script>
 </body>
 </html>
+
