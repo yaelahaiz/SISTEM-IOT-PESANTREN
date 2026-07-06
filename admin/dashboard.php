@@ -20,6 +20,50 @@ $salesStats = $conn->query("
 
 $totalRev = $salesStats['total_rev'] ?? 0;
 $totalProfit = $salesStats['total_profit'] ?? 0;
+
+// Fetch Chart Data
+// Solar
+$solarQuery = $conn->query("SELECT temperature, voltage, DATE_FORMAT(recorded_at, '%H:%i') as time_label FROM solar_monitoring ORDER BY id DESC LIMIT 15");
+$solarLabels = []; $solarTemps = []; $solarVolts = [];
+if ($solarQuery) {
+    while($row = $solarQuery->fetch_assoc()) {
+        array_unshift($solarLabels, $row['time_label']);
+        array_unshift($solarTemps, floatval($row['temperature']));
+        array_unshift($solarVolts, floatval($row['voltage']));
+    }
+}
+
+// Dryer
+$dryerQuery = $conn->query("SELECT temperature, power_ac, DATE_FORMAT(recorded_at, '%H:%i') as time_label FROM dryer_monitoring ORDER BY id DESC LIMIT 15");
+$dryerLabels = []; $dryerTemps = []; $dryerPower = [];
+if ($dryerQuery) {
+    while($row = $dryerQuery->fetch_assoc()) {
+        array_unshift($dryerLabels, $row['time_label']);
+        array_unshift($dryerTemps, floatval($row['temperature']));
+        array_unshift($dryerPower, floatval($row['power_ac']));
+    }
+}
+
+// Cattle
+$cattleQuery = $conn->query("SELECT liquid_level, gas_pressure, DATE_FORMAT(recorded_at, '%H:%i') as time_label FROM cattle_monitoring ORDER BY id DESC LIMIT 15");
+$cattleLabels = []; $cattleLevel = []; $cattlePressure = [];
+if ($cattleQuery) {
+    while($row = $cattleQuery->fetch_assoc()) {
+        array_unshift($cattleLabels, $row['time_label']);
+        array_unshift($cattleLevel, floatval($row['liquid_level']));
+        array_unshift($cattlePressure, floatval($row['gas_pressure']));
+    }
+}
+
+// Permaculture
+$permQuery = $conn->query("SELECT soil_ph, DATE_FORMAT(recorded_at, '%H:%i') as time_label FROM permaculture_monitoring ORDER BY id DESC LIMIT 15");
+$permLabels = []; $permPh = [];
+if ($permQuery) {
+    while($row = $permQuery->fetch_assoc()) {
+        array_unshift($permLabels, $row['time_label']);
+        array_unshift($permPh, floatval($row['soil_ph']));
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -28,31 +72,38 @@ $totalProfit = $salesStats['total_profit'] ?? 0;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Admin - IoT Pesantren</title>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-    <button class="sidebar-toggle-btn">☰</button>
+    <button class="sidebar-toggle-btn" onclick="toggleSidebar()"><i class="bx bx-menu"></i></button>
     
     <div class="admin-wrapper">
         <!-- Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="adminSidebar">
             <div class="sidebar-header">
-                <h2>IoT<span>Pesantren</span></h2>
-                <p>Admin Panel</p>
+                <div class="logo-full">
+                    <h2>IoT<span>Pesantren</span></h2>
+                </div>
+                <div class="logo-mini">
+                    <h2>I<span>P</span></h2>
+                </div>
+                <button class="sidebar-collapse-btn" onclick="collapseSidebar()" title="Tutup/Buka Sidebar"><i class="bx bx-chevron-left"></i></button>
             </div>
             <ul class="sidebar-nav">
-                <li><a href="dashboard.php" class="active"><span class="nav-icon">&#128202;</span> Dashboard</a></li>
+                <li><a href="dashboard.php" class="active"><i class="bx bx-home-alt nav-icon"></i> <span class="nav-text">Dashboard</span></a></li>
                 <li class="sidebar-divider">PERANGKAT</li>
-                <li><a href="devices.php"><span class="nav-icon">&#128241;</span> Perangkat</a></li>
-                <li><a href="sensors.php"><span class="nav-icon">&#127777;&#65039;</span> Sensor</a></li>
-                <li><a href="monitoring.php"><span class="nav-icon">&#128200;</span> Monitoring</a></li>
-                <li><a href="relay_control.php"><span class="nav-icon">&#128268;</span> Kontrol Relay</a></li>
+                <li><a href="devices.php" ><i class="bx bx-chip nav-icon"></i> <span class="nav-text">Perangkat</span></a></li>
+                <li><a href="sensors.php" ><i class="bx bx-tachometer nav-icon"></i> <span class="nav-text">Sensor</span></a></li>
+                <li><a href="monitoring.php" ><i class="bx bx-line-chart nav-icon"></i> <span class="nav-text">Monitoring</span></a></li>
+                <li><a href="relay_control.php" ><i class="bx bx-power-off nav-icon"></i> <span class="nav-text">Kontrol Relay</span></a></li>
                 <li class="sidebar-divider">PENJUALAN</li>
-                <li><a href="sales.php"><span class="nav-icon">&#128176;</span> Penjualan</a></li>
-                <li><a href="sales_chart.php"><span class="nav-icon">&#128201;</span> Grafik Penjualan</a></li>
+                <li><a href="sales.php" ><i class="bx bx-store-alt nav-icon"></i> <span class="nav-text">Penjualan</span></a></li>
+                <li><a href="sales_chart.php" ><i class="bx bx-pie-chart-alt-2 nav-icon"></i> <span class="nav-text">Grafik Penjualan</span></a></li>
                 <li class="sidebar-divider">SISTEM</li>
-                <li><a href="settings.php"><span class="nav-icon">&#9881;&#65039;</span> Pengaturan</a></li>
-                <li><a href="../logout.php"><span class="nav-icon">&#128682;</span> Logout</a></li>
+                <li><a href="settings.php" ><i class="bx bx-cog nav-icon"></i> <span class="nav-text">Pengaturan</span></a></li>
+                <li><a href="../logout.php"><i class="bx bx-log-out nav-icon"></i> <span class="nav-text">Logout</span></a></li>
             </ul>
         </aside>
 
@@ -67,22 +118,18 @@ $totalProfit = $salesStats['total_profit'] ?? 0;
 
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-icon">📱</div>
                     <div class="stat-value"><?= $deviceCount ?></div>
                     <div class="stat-label">Total Perangkat</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon">🟢</div>
                     <div class="stat-value"><?= $activeDeviceCount ?></div>
                     <div class="stat-label">Perangkat Aktif</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon">💰</div>
                     <div class="stat-value" style="font-size:1.5rem; line-height:2rem;"><?= formatRupiah($totalRev) ?></div>
                     <div class="stat-label">Pendapatan Bulan Ini</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon">📈</div>
                     <div class="stat-value" style="font-size:1.5rem; line-height:2rem; color:var(--secondary)"><?= formatRupiah($totalProfit) ?></div>
                     <div class="stat-label">Keuntungan Bulan Ini</div>
                 </div>
@@ -95,11 +142,11 @@ $totalProfit = $salesStats['total_profit'] ?? 0;
                 <a href="../index.php" target="_blank" class="btn btn-outline">Lihat Halaman Publik ↗</a>
             </div>
 
-            <div class="card">
+            <div class="card mb-3">
                 <div class="card-header">
                     <h3>Status Sistem Real-time</h3>
                 </div>
-                <div class="table-responsive">
+                <div class="table-responsive" style="margin-bottom: 0;">
                     <table class="data-table">
                         <thead>
                             <tr>
@@ -150,9 +197,158 @@ $totalProfit = $salesStats['total_profit'] ?? 0;
                 </div>
             </div>
 
+            <div class="dashboard-grid">
+                <!-- Solar Chart Mini -->
+                <div class="card">
+                    <div class="card-header solar">
+                        <h3>Grafik Panel Surya</h3>
+                    </div>
+                    <div style="height: 250px;">
+                        <canvas id="miniSolarChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Dryer Chart Mini -->
+                <div class="card">
+                    <div class="card-header dryer">
+                        <h3>Grafik Rumah Pengering</h3>
+                    </div>
+                    <div style="height: 250px;">
+                        <canvas id="miniDryerChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Cattle Chart Mini -->
+                <div class="card">
+                    <div class="card-header cattle">
+                        <h3>Grafik Kandang Sapi</h3>
+                    </div>
+                    <div style="height: 250px;">
+                        <canvas id="miniCattleChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Permaculture Chart Mini -->
+                <div class="card">
+                    <div class="card-header permaculture">
+                        <h3>Grafik Permaculture</h3>
+                    </div>
+                    <div style="height: 250px;">
+                        <canvas id="miniPermChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 
     <script src="../assets/js/main.js"></script>
+    <script>
+        // Chart Data
+        const sLabels = <?= json_encode($solarLabels) ?>;
+        const sTemps = <?= json_encode($solarTemps) ?>;
+        
+        const dLabels = <?= json_encode($dryerLabels) ?>;
+        const dTemps = <?= json_encode($dryerTemps) ?>;
+        
+        const cLabels = <?= json_encode($cattleLabels) ?>;
+        const cLevel = <?= json_encode($cattleLevel) ?>;
+        
+        const pLabels = <?= json_encode($permLabels) ?>;
+        const pPh = <?= json_encode($permPh) ?>;
+
+        // Common Options for Mini Charts
+        const miniOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { display: false },
+                y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { maxTicksLimit: 5, font: {size: 10} } }
+            },
+            elements: { point: { radius: 0, hitRadius: 5 }, line: { tension: 0.3, borderWidth: 2 } }
+        };
+
+        // 1. Solar
+        if(sLabels.length > 0 && document.getElementById('miniSolarChart')) {
+            new Chart(document.getElementById('miniSolarChart'), {
+                type: 'line',
+                data: {
+                    labels: sLabels,
+                    datasets: [{
+                        label: 'Suhu Panel (°C)',
+                        data: sTemps,
+                        borderColor: '#ffb600',
+                        backgroundColor: 'rgba(255, 182, 0, 0.1)',
+                        fill: true
+                    }]
+                },
+                options: miniOptions
+            });
+        }
+
+        // 2. Dryer
+        if(dLabels.length > 0 && document.getElementById('miniDryerChart')) {
+            new Chart(document.getElementById('miniDryerChart'), {
+                type: 'line',
+                data: {
+                    labels: dLabels,
+                    datasets: [{
+                        label: 'Suhu Pengering (°C)',
+                        data: dTemps,
+                        borderColor: '#e66060',
+                        backgroundColor: 'rgba(230, 96, 96, 0.1)',
+                        fill: true
+                    }]
+                },
+                options: miniOptions
+            });
+        }
+
+        // 3. Cattle
+        if(cLabels.length > 0 && document.getElementById('miniCattleChart')) {
+            new Chart(document.getElementById('miniCattleChart'), {
+                type: 'line',
+                data: {
+                    labels: cLabels,
+                    datasets: [{
+                        label: 'Level Cairan (cm)',
+                        data: cLevel,
+                        borderColor: '#009678',
+                        backgroundColor: 'rgba(0, 150, 120, 0.1)',
+                        fill: true
+                    }]
+                },
+                options: miniOptions
+            });
+        }
+
+        // 4. Permaculture
+        if(pLabels.length > 0 && document.getElementById('miniPermChart')) {
+            new Chart(document.getElementById('miniPermChart'), {
+                type: 'line',
+                data: {
+                    labels: pLabels,
+                    datasets: [{
+                        label: 'pH Tanah',
+                        data: pPh,
+                        borderColor: '#04a2b3',
+                        backgroundColor: 'rgba(4, 162, 179, 0.1)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { display: false },
+                        y: { min: 0, max: 14, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { maxTicksLimit: 5, font: {size: 10} } }
+                    },
+                    elements: { point: { radius: 0, hitRadius: 5 }, line: { tension: 0.3, borderWidth: 2 } }
+                }
+            });
+        }
+    </script>
 </body>
 </html>

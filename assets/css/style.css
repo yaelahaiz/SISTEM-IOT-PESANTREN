@@ -830,7 +830,12 @@ textarea.form-control {
     bottom: 0;
     z-index: 1100;
     overflow-y: auto;
-    transition: width 0.4s ease;
+    overflow-x: hidden;
+    transition: var(--transition);
+}
+
+.sidebar.collapsed {
+    width: 70px;
 }
 
 .sidebar::-webkit-scrollbar {
@@ -844,35 +849,84 @@ textarea.form-control {
 
 .sidebar-header {
     padding: 0 20px;
-    height: 60px;
+    height: 70px;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
+    align-items: center;
     border-bottom: 1px solid rgba(255,255,255,0.07);
+    position: relative;
 }
 
-.sidebar-header h2 {
+.logo-full h2, .logo-mini h2 {
     color: white;
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     font-weight: 700;
     letter-spacing: -0.2px;
+    white-space: nowrap;
+    margin: 0;
 }
 
-.sidebar-header p {
+.logo-full span, .logo-mini span {
+    color: var(--primary);
+}
+
+.logo-mini {
+    display: none;
+    text-align: center;
+    width: 100%;
+}
+
+.sidebar.collapsed .logo-full {
+    display: none;
+}
+
+.sidebar.collapsed .logo-mini {
+    display: block;
+}
+
+.sidebar-collapse-btn {
+    background: none;
+    border: none;
     color: var(--sidebar-label);
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    font-weight: 500;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+}
+
+.sidebar-collapse-btn:hover {
+    color: white;
+    background: rgba(255,255,255,0.1);
+}
+
+.sidebar.collapsed .sidebar-collapse-btn {
+    transform: rotate(180deg);
+    position: absolute;
+    right: -12px;
+    top: 50%;
+    margin-top: -12px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    box-shadow: var(--shadow);
+    z-index: 10;
 }
 
 .sidebar-nav {
     list-style: none;
     padding: 12px 16px;
+    transition: var(--transition);
 }
 
-.sidebar-nav li {
-    margin-bottom: 2px;
+.sidebar.collapsed .sidebar-nav {
+    padding: 12px 8px;
 }
 
 /* Appzia sidebar label (section divider) */
@@ -886,12 +940,21 @@ textarea.form-control {
     letter-spacing: 1.2px;
     color: var(--sidebar-label);
     font-weight: 700;
+    white-space: nowrap;
+    transition: var(--transition);
+}
+
+.sidebar.collapsed .sidebar-divider {
+    opacity: 0;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
 }
 
 .sidebar-nav a {
     display: flex;
     align-items: center;
-    gap: 10px;
     padding: 10px 12px;
     color: var(--sidebar-text);
     border-radius: var(--radius-lg);
@@ -899,6 +962,15 @@ textarea.form-control {
     font-weight: 400;
     transition: var(--transition);
     opacity: 0.75;
+    white-space: nowrap;
+}
+
+.sidebar-nav .nav-icon {
+    font-size: 1.25rem;
+    width: 24px;
+    text-align: center;
+    margin-right: 10px;
+    transition: var(--transition);
 }
 
 .sidebar-nav a:hover {
@@ -914,11 +986,23 @@ textarea.form-control {
     opacity: 1;
 }
 
-.sidebar-nav .nav-icon {
-    font-size: 1.05rem;
-    width: 22px;
-    text-align: center;
-    flex-shrink: 0;
+.sidebar-nav a.active .nav-icon {
+    color: var(--primary);
+}
+
+.sidebar.collapsed .sidebar-nav a {
+    padding: 12px 0;
+    justify-content: center;
+    border-radius: var(--radius);
+}
+
+.sidebar.collapsed .nav-icon {
+    margin-right: 0;
+    font-size: 1.4rem;
+}
+
+.sidebar.collapsed .nav-text {
+    display: none;
 }
 
 /* ===== Admin Content ===== */
@@ -928,6 +1012,11 @@ textarea.form-control {
     padding: 20px;
     min-height: 100vh;
     background: var(--bg-content);
+    transition: var(--transition);
+}
+
+.admin-content.fullwidth {
+    margin-left: 70px;
 }
 
 .admin-header {
@@ -1455,7 +1544,7 @@ textarea.form-control {
         background: var(--sidebar-bg);
         color: white;
         border: none;
-        font-size: 1.2rem;
+        font-size: 1.5rem;
         cursor: pointer;
         box-shadow: var(--shadow-md);
         transition: var(--transition);

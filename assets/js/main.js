@@ -177,317 +177,38 @@ function confirmDelete(message) {
 
 // ===== Sidebar Toggle (Mobile) =====
 function toggleSidebar() {
-    const sidebar = document.querySelector('.sidebar');
+    const sidebar = document.getElementById('adminSidebar');
     if (sidebar) {
         sidebar.classList.toggle('show');
     }
 }
 
-// ===== Navbar Toggle (Mobile) =====
-function toggleNavbar() {
-    const nav = document.querySelector('.navbar-nav');
-    if (nav) {
-        nav.classList.toggle('show');
-    }
-}
-
-// ===== Modal Functions =====
-function openModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
-}
-
-function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
-    }
-}
-
-// Close modal on overlay click
-document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('modal-overlay')) {
-        e.target.classList.remove('active');
-        document.body.style.overflow = '';
-    }
-});
-
-// ===== Relay Toggle =====
-function toggleRelay(relayId, newStatus) {
-    fetch(`${BASE_URL}/api/update_relay_status.php`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `relay_id=${relayId}&status=${newStatus}`
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status === 'success') {
-            showToast(data.message, 'success');
-            // Update UI
-            const card = document.querySelector(`[data-relay-id="${relayId}"]`);
-            if (card) {
-                if (newStatus == 1) {
-                    card.classList.add('relay-on');
-                    card.querySelector('.relay-status').textContent = 'ON';
-                    card.querySelector('.relay-icon').textContent = '💡';
-                } else {
-                    card.classList.remove('relay-on');
-                    card.querySelector('.relay-status').textContent = 'OFF';
-                    card.querySelector('.relay-icon').textContent = '🔌';
-                }
-            }
-        } else {
-            showToast(data.message, 'error');
-        }
-    })
-    .catch(err => {
-        showToast('Gagal mengubah relay', 'error');
-        console.error(err);
-    });
-}
-
-// ===== Chart Helpers (Appzia color palette) =====
-const chartColors = {
-    primary: 'rgba(0, 150, 120, 1)',
-    primaryBg: 'rgba(0, 150, 120, 0.1)',
-    secondary: 'rgba(4, 162, 179, 1)',
-    secondaryBg: 'rgba(4, 162, 179, 0.1)',
-    warning: 'rgba(255, 182, 0, 1)',
-    warningBg: 'rgba(255, 182, 0, 0.1)',
-    danger: 'rgba(230, 96, 96, 1)',
-    dangerBg: 'rgba(230, 96, 96, 0.1)',
-    info: 'rgba(0, 164, 254, 1)',
-    infoBg: 'rgba(0, 164, 254, 0.1)',
-    success: 'rgba(102, 210, 3, 1)',
-    successBg: 'rgba(102, 210, 3, 0.1)'
-};
-
-/**
- * Buat line chart
- */
-function createLineChart(canvasId, labels, datasets, title = '') {
-    const ctx = document.getElementById(canvasId);
-    if (!ctx) return null;
-    
-    return new Chart(ctx, {
-        type: 'line',
-        data: { labels, datasets },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: { display: !!title, text: title },
-                legend: { position: 'top' }
-            },
-            scales: {
-                x: {
-                    grid: { display: false },
-                    ticks: { maxTicksLimit: 12 }
-                },
-                y: {
-                    beginAtZero: false,
-                    grid: { color: 'rgba(0,0,0,0.05)' }
-                }
-            },
-            interaction: {
-                intersect: false,
-                mode: 'index'
-            },
-            elements: {
-                point: { radius: 2, hoverRadius: 5 },
-                line: { tension: 0.3 }
-            }
-        }
-    });
-}
-
-/**
- * Buat bar chart
- */
-function createBarChart(canvasId, labels, data, title = '', color = null) {
-    const ctx = document.getElementById(canvasId);
-    if (!ctx) return null;
-    
-    const bgColor = color || chartColors.primary;
-    
-    return new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels,
-            datasets: [{
-                label: title,
-                data,
-                backgroundColor: data.map(v => v >= 0 ? chartColors.secondaryBg : chartColors.dangerBg),
-                borderColor: data.map(v => v >= 0 ? chartColors.secondary : chartColors.danger),
-                borderWidth: 2,
-                borderRadius: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: { display: !!title, text: title },
-                legend: { display: false }
-            },
-            scales: {
-                x: { grid: { display: false } },
-                y: { grid: { color: 'rgba(0,0,0,0.05)' } }
-            }
-        }
-    });
-}
-
-/**
- * Buat doughnut chart
- */
-function createDoughnutChart(canvasId, labels, data, title = '') {
-    const ctx = document.getElementById(canvasId);
-    if (!ctx) return null;
-    
-    const colors = [
-        '#2563eb', '#059669', '#d97706', '#dc2626', '#0891b2',
-        '#7c3aed', '#db2777', '#65a30d', '#ea580c', '#0284c7'
-    ];
-    
-    return new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels,
-            datasets: [{
-                data,
-                backgroundColor: colors.slice(0, labels.length),
-                borderWidth: 2,
-                borderColor: '#fff'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: { display: !!title, text: title },
-                legend: { position: 'bottom' }
-            }
-        }
-    });
-}
-
-// ===== Sales Chart Period Selector =====
-function loadSalesChart(period) {
-    // Update active button
-    document.querySelectorAll('.period-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    event.target.classList.add('active');
-    
-    fetch(`${BASE_URL}/admin/sales_chart.php?ajax=1&period=${period}`)
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === 'success') {
-                updateSalesCharts(data);
-            }
-        })
-        .catch(err => console.error('Chart error:', err));
-}
-
-function updateSalesCharts(data) {
-    // Destroy existing charts
-    if (window.profitChart) window.profitChart.destroy();
-    if (window.trendChart) window.trendChart.destroy();
-    if (window.productChart) window.productChart.destroy();
-    
-    // Profit bar chart
-    window.profitChart = createBarChart('profitChart', data.labels, data.profits, 'Keuntungan');
-    
-    // Trend line chart
-    window.trendChart = createLineChart('trendChart', data.labels, [
-        {
-            label: 'Modal',
-            data: data.capitals,
-            borderColor: chartColors.danger,
-            backgroundColor: chartColors.dangerBg,
-            fill: true
-        },
-        {
-            label: 'Pendapatan',
-            data: data.revenues,
-            borderColor: chartColors.secondary,
-            backgroundColor: chartColors.secondaryBg,
-            fill: true
-        },
-        {
-            label: 'Keuntungan',
-            data: data.profits,
-            borderColor: chartColors.primary,
-            backgroundColor: chartColors.primaryBg,
-            fill: true
-        }
-    ], 'Trend Penjualan');
-    
-    // Product doughnut
-    if (data.products && data.product_totals) {
-        window.productChart = createDoughnutChart('productChart', data.products, data.product_totals, 'Per Produk');
-    }
-}
-
-// ===== Table Search =====
-function searchTable(inputId, tableId) {
-    const input = document.getElementById(inputId);
-    const table = document.getElementById(tableId);
-    if (!input || !table) return;
-    
-    const filter = input.value.toLowerCase();
-    const rows = table.querySelectorAll('tbody tr');
-    
-    rows.forEach(row => {
-        const text = row.textContent.toLowerCase();
-        row.style.display = text.includes(filter) ? '' : 'none';
-    });
-}
-
-// ===== Export to CSV =====
-function exportTableCSV(tableId, filename) {
-    const table = document.getElementById(tableId);
-    if (!table) return;
-    
-    let csv = '\ufeff'; // BOM
-    const rows = table.querySelectorAll('tr');
-    
-    rows.forEach(row => {
-        const cols = row.querySelectorAll('td, th');
-        const rowData = [];
-        cols.forEach(col => {
-            let text = col.textContent.trim().replace(/"/g, '""');
-            rowData.push('"' + text + '"');
-        });
-        csv += rowData.join(',') + '\n';
-    });
-    
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = filename || 'export.csv';
-    link.click();
-}
-
-// ===== Auto Calculate Profit =====
-function calculateProfit() {
-    const capital = parseFloat(document.getElementById('capital')?.value) || 0;
-    const revenue = parseFloat(document.getElementById('revenue')?.value) || 0;
-    const profitEl = document.getElementById('profit');
-    if (profitEl) {
-        const profit = revenue - capital;
-        profitEl.value = profit;
-        profitEl.style.color = profit >= 0 ? 'var(--secondary)' : 'var(--danger)';
+// ===== Sidebar Collapse (Desktop) =====
+function collapseSidebar() {
+    const sidebar = document.getElementById('adminSidebar');
+    const content = document.querySelector('.admin-content');
+    if (sidebar && content) {
+        sidebar.classList.toggle('collapsed');
+        content.classList.toggle('fullwidth');
+        
+        // Save state to localStorage
+        const isCollapsed = sidebar.classList.contains('collapsed');
+        localStorage.setItem('sidebarCollapsed', isCollapsed);
     }
 }
 
 // ===== DOMContentLoaded =====
 document.addEventListener('DOMContentLoaded', function() {
+    // Restore sidebar state
+    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+    if (isCollapsed && window.innerWidth > 768) {
+        const sidebar = document.getElementById('adminSidebar');
+        const content = document.querySelector('.admin-content');
+        if (sidebar && content) {
+            sidebar.classList.add('collapsed');
+            content.classList.add('fullwidth');
+        }
+    }
     // Auto-refresh for dashboard pages
     const dashboardEl = document.querySelector('[data-refresh-type]');
     if (dashboardEl) {

@@ -123,30 +123,36 @@ $summaryYear = $conn->query("SELECT COALESCE(SUM(capital),0) as cap, COALESCE(SU
     <title>Grafik Penjualan - IoT Pesantren</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 <body>
 
-    <button class="sidebar-toggle-btn">&#9776;</button>
+    <button class="sidebar-toggle-btn" onclick="toggleSidebar()"><i class="bx bx-menu"></i></button>
     
     <div class="admin-wrapper">
-        <aside class="sidebar">
+        <aside class="sidebar" id="adminSidebar">
             <div class="sidebar-header">
-                <h2>IoT<span>Pesantren</span></h2>
-                <p>Admin Panel</p>
+                <div class="logo-full">
+                    <h2>IoT<span>Pesantren</span></h2>
+                </div>
+                <div class="logo-mini">
+                    <h2>I<span>P</span></h2>
+                </div>
+                <button class="sidebar-collapse-btn" onclick="collapseSidebar()" title="Tutup/Buka Sidebar"><i class="bx bx-chevron-left"></i></button>
             </div>
             <ul class="sidebar-nav">
-                <li><a href="dashboard.php"><span class="nav-icon">&#128202;</span> Dashboard</a></li>
+                <li><a href="dashboard.php" ><i class="bx bx-home-alt nav-icon"></i> <span class="nav-text">Dashboard</span></a></li>
                 <li class="sidebar-divider">PERANGKAT</li>
-                <li><a href="devices.php"><span class="nav-icon">&#128241;</span> Perangkat</a></li>
-                <li><a href="sensors.php"><span class="nav-icon">&#127777;&#65039;</span> Sensor</a></li>
-                <li><a href="monitoring.php"><span class="nav-icon">&#128200;</span> Monitoring</a></li>
-                <li><a href="relay_control.php"><span class="nav-icon">&#128268;</span> Kontrol Relay</a></li>
+                <li><a href="devices.php" ><i class="bx bx-chip nav-icon"></i> <span class="nav-text">Perangkat</span></a></li>
+                <li><a href="sensors.php" ><i class="bx bx-tachometer nav-icon"></i> <span class="nav-text">Sensor</span></a></li>
+                <li><a href="monitoring.php" ><i class="bx bx-line-chart nav-icon"></i> <span class="nav-text">Monitoring</span></a></li>
+                <li><a href="relay_control.php" ><i class="bx bx-power-off nav-icon"></i> <span class="nav-text">Kontrol Relay</span></a></li>
                 <li class="sidebar-divider">PENJUALAN</li>
-                <li><a href="sales.php"><span class="nav-icon">&#128176;</span> Penjualan</a></li>
-                <li><a href="sales_chart.php" class="active"><span class="nav-icon">&#128201;</span> Grafik Penjualan</a></li>
+                <li><a href="sales.php" ><i class="bx bx-store-alt nav-icon"></i> <span class="nav-text">Penjualan</span></a></li>
+                <li><a href="sales_chart.php" class="active"><i class="bx bx-pie-chart-alt-2 nav-icon"></i> <span class="nav-text">Grafik Penjualan</span></a></li>
                 <li class="sidebar-divider">SISTEM</li>
-                <li><a href="settings.php"><span class="nav-icon">&#9881;&#65039;</span> Pengaturan</a></li>
-                <li><a href="../logout.php"><span class="nav-icon">&#128682;</span> Logout</a></li>
+                <li><a href="settings.php" ><i class="bx bx-cog nav-icon"></i> <span class="nav-text">Pengaturan</span></a></li>
+                <li><a href="../logout.php"><i class="bx bx-log-out nav-icon"></i> <span class="nav-text">Logout</span></a></li>
             </ul>
         </aside>
 
